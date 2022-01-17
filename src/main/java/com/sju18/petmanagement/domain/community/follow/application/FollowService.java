@@ -6,6 +6,7 @@ import com.sju18.petmanagement.domain.community.follow.dao.Follow;
 import com.sju18.petmanagement.domain.community.follow.dao.FollowRepository;
 import com.sju18.petmanagement.domain.community.follow.dto.CreateFollowReqDto;
 import com.sju18.petmanagement.domain.community.follow.dto.DeleteFollowReqDto;
+import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -24,6 +25,7 @@ public class FollowService {
     private final MessageSource msgSrc = MessageConfig.getAccountMessageSource();
     private final FollowRepository followRepository;
     private final AccountService accountServ;
+    private final NotificationPushService notificationPushService;
 
     @Transactional
     public void createFollow(Authentication auth, CreateFollowReqDto reqDto) throws Exception {
@@ -37,6 +39,9 @@ public class FollowService {
                 .build();
 
         followRepository.save(follow);
+
+        // Follower 인 유저에게 팔로우 알림 보내기
+        notificationPushService.sendToSingleDevice("팔로우 알림", following.getNickname() + "님이 당신을 팔로우하기 시작했습니다.", follower.getFcmRegistrationToken());
     }
 
     // 현재 사용자가 팔로잉하고 있는, 사용자가 Following 객체이고 찾는 객체가 Follower 객체인 Follow 리스트 Fetch

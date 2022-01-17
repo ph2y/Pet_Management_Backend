@@ -9,6 +9,7 @@ import com.sju18.petmanagement.domain.community.post.dto.*;
 import com.sju18.petmanagement.domain.community.follow.application.FollowService;
 import com.sju18.petmanagement.domain.pet.pet.application.PetService;
 import com.sju18.petmanagement.domain.pet.pet.dao.Pet;
+import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import com.sju18.petmanagement.global.storage.FileMetadata;
 import com.sju18.petmanagement.global.storage.FileService;
@@ -16,15 +17,10 @@ import com.sju18.petmanagement.global.storage.FileType;
 import com.sju18.petmanagement.global.storage.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpRange;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,11 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -47,6 +42,7 @@ public class PostService {
     private final PetService petServ;
     private final FollowService followServ;
     private final FileService fileServ;
+    private final NotificationPushService notificationPushService;
 
     // CREATE
     @Transactional
@@ -73,9 +69,18 @@ public class PostService {
         // 게시물 파일 저장소 생성
         fileServ.createPostFileStorage(post.getId());
 
+        // 게시물을 생성한 유저를 팔로우 하는 모든 유저들에게 알림 보내기
+        List<String> fcmRegistrationTokens = followServ.fetchFollowing(auth).stream()
+                .map(follow -> follow.getFollowing().getFcmRegistrationToken())
+                .collect(Collectors.toList());
+        
+        // 비동기로 실행 필요
+        notificationPushService.sendToMultipleDevice("게시물 알림", author.getNickname() + "님이 새 일기를 작성했어요!", fcmRegistrationTokens);
+
         // 게시물 id 반환
         return post.getId();
     }
+
 
     // READ
     @Transactional(readOnly = true)

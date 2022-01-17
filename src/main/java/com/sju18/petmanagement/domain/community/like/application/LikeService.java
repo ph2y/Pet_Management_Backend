@@ -12,6 +12,7 @@ import com.sju18.petmanagement.domain.community.like.dto.CreateLikeReqDto;
 import com.sju18.petmanagement.domain.community.like.dto.DeleteLikeReqDto;
 import com.sju18.petmanagement.domain.community.like.dto.FetchLikeReqDto;
 import com.sju18.petmanagement.global.exception.DtoValidityException;
+import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -31,6 +32,7 @@ public class LikeService {
     private final AccountService accountServ;
     private final PostService postServ;
     private final CommentService commentServ;
+    private final NotificationPushService notificationPushService;
 
     // CREATE
     @Transactional
@@ -61,6 +63,9 @@ public class LikeService {
 
         // save
         likeRepository.save(like);
+
+        // 해당 게시물을 쓴 유저에게 좋아요 알림 보내기
+        notificationPushService.sendToSingleDevice("게시물 좋아요 알림", likedAccount.getNickname() + "님이 집사님의 일기에 좋아요를 눌렀어요!", likedPost.getAuthor().getFcmRegistrationToken());
     }
 
     private void checkAlreadyLikedPost(Long postId, Account likedAccount) throws Exception {
