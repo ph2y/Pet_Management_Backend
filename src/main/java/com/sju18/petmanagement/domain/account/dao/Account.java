@@ -40,4 +40,6 @@ public class Account {
 
     @Column
     private String fcmRegistrationToken;
+    @Column(nullable = false)
+    private Boolean notification;
 }

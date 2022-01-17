@@ -169,6 +169,12 @@ public class AccountService {
         if (reqDto.getRepresentativePetId() != null && !reqDto.getRepresentativePetId().equals(currentAccount.getRepresentativePetId())) {
             currentAccount.setRepresentativePetId(reqDto.getRepresentativePetId());
         }
+        if (reqDto.getFcmRegistrationToken() != null && !reqDto.getFcmRegistrationToken().equals(currentAccount.getFcmRegistrationToken())) {
+            currentAccount.setFcmRegistrationToken(reqDto.getFcmRegistrationToken());
+        }
+        if (reqDto.getNotification() != null && !reqDto.getNotification().equals(currentAccount.getNotification())) {
+            currentAccount.setNotification(reqDto.getNotification());
+        }
 
         // 기존 사용자 정보 변경사항 적용
         accountRepository.save(currentAccount);
