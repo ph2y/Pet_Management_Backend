@@ -41,7 +41,7 @@ public class FollowService {
         followRepository.save(follow);
 
         // Follower 인 유저에게 팔로우 알림 보내기
-        notificationPushService.sendToSingleDevice("팔로우 알림", following.getNickname() + "님이 당신을 팔로우하기 시작했습니다.", follower.getFcmRegistrationToken());
+        notificationPushService.sendToSingleDevice("팔로우 알림", following.getNickname() + "님이 당신을 팔로우하기 시작했습니다.", follower);
     }
 
     // 현재 사용자가 팔로잉하고 있는, 사용자가 Following 객체이고 찾는 객체가 Follower 객체인 Follow 리스트 Fetch

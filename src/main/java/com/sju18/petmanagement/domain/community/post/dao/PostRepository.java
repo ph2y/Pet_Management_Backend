@@ -39,8 +39,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     @Query(
-            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
-            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
+            // value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
+            // countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
+            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND (p.account_id IN :friends OR p.account_id=:me)) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
+            countQuery = "SELECT COUNT() FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND (p.account_id IN :friends OR p.account_id=:me)) OR (p.disclosure\"PRIVATE\" AND p.account_id=:me))",
             nativeQuery = true
     )
     Page<Post> findAllByDefaultOptionAndTopPostId(

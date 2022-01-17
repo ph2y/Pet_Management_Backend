@@ -65,7 +65,7 @@ public class LikeService {
         likeRepository.save(like);
 
         // 해당 게시물을 쓴 유저에게 좋아요 알림 보내기
-        notificationPushService.sendToSingleDevice("게시물 좋아요 알림", likedAccount.getNickname() + "님이 집사님의 일기에 좋아요를 눌렀어요!", likedPost.getAuthor().getFcmRegistrationToken());
+        notificationPushService.sendToSingleDevice("게시물 좋아요 알림", likedAccount.getNickname() + "님이 집사님의 일기에 좋아요를 눌렀어요!", likedPost.getAuthor());
     }
 
     private void checkAlreadyLikedPost(Long postId, Account likedAccount) throws Exception {

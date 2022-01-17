@@ -1,15 +1,18 @@
 package com.sju18.petmanagement.global.firebase;
 
 import com.google.firebase.messaging.*;
+import com.sju18.petmanagement.domain.account.dao.Account;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationPushService {
-    public void sendToSingleDevice(String title, String body, String fcmRegistrationToken) throws FirebaseMessagingException {
-        if(fcmRegistrationToken != null) {
+    public void sendToSingleDevice(String title, String body, Account pushSubjectAccount) throws FirebaseMessagingException {
+        // FCM 토큰이 존재하고 알림이 ON 인 경우에만 알림 보내기
+        if(pushSubjectAccount.getFcmRegistrationToken() != null && pushSubjectAccount.getNotification()) {
             // 알림 객체 설정
             Notification notification = Notification.builder()
                     .setTitle(title)
@@ -19,7 +22,7 @@ public class NotificationPushService {
             // 메세지 객체 설정
             Message message = Message.builder()
                     .setNotification(notification)
-                    .setToken(fcmRegistrationToken)
+                    .setToken(pushSubjectAccount.getFcmRegistrationToken())
                     .build();
 
             // 메세지 FCM 서버에 보내기
@@ -28,12 +31,16 @@ public class NotificationPushService {
             // Response 받기
             System.out.println("Successfully sent message: " + response);
         }
-        else {
-            System.out.println("User fcmRegistrationToken is null");
-        }
     }
 
-    public void sendToMultipleDevice(String title, String body, List<String> fcmRegistrationTokens) throws FirebaseMessagingException {
+    public void sendToMultipleDevice(String title, String body, List<Account> pushSubjectAccounts) throws FirebaseMessagingException {
+        // FCM 토큰이 존재하고 알림이 ON 인 유저들의 FCM 토큰만 가져오기
+        List<String> fcmRegistrationTokens = pushSubjectAccounts.stream()
+                .filter(account -> account.getFcmRegistrationToken() != null)
+                .filter(Account::getNotification)
+                .map(Account::getFcmRegistrationToken)
+                .collect(Collectors.toList());
+
         // 알림 객체 설정
         Notification notification = Notification.builder()
                 .setTitle(title)

@@ -3,6 +3,7 @@ package com.sju18.petmanagement.domain.community.post.application;
 import com.google.gson.Gson;
 import com.sju18.petmanagement.domain.account.application.AccountService;
 import com.sju18.petmanagement.domain.account.dao.Account;
+import com.sju18.petmanagement.domain.community.follow.dao.Follow;
 import com.sju18.petmanagement.domain.community.post.dao.Post;
 import com.sju18.petmanagement.domain.community.post.dao.PostRepository;
 import com.sju18.petmanagement.domain.community.post.dto.*;
@@ -70,12 +71,12 @@ public class PostService {
         fileServ.createPostFileStorage(post.getId());
 
         // 게시물을 생성한 유저를 팔로우 하는 모든 유저들에게 알림 보내기
-        List<String> fcmRegistrationTokens = followServ.fetchFollowing(auth).stream()
-                .map(follow -> follow.getFollowing().getFcmRegistrationToken())
+        List<Account> pushSubjectAccounts = followServ.fetchFollowing(auth).stream()
+                .map(Follow::getFollowing)
                 .collect(Collectors.toList());
         
         // 비동기로 실행 필요
-        notificationPushService.sendToMultipleDevice("게시물 알림", author.getNickname() + "님이 새 일기를 작성했어요!", fcmRegistrationTokens);
+        notificationPushService.sendToMultipleDevice("게시물 알림", author.getNickname() + "님이 새 일기를 작성했어요!", pushSubjectAccounts);
 
         // 게시물 id 반환
         return post.getId();
