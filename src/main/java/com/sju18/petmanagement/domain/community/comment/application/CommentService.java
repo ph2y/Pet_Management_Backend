@@ -10,6 +10,7 @@ import com.sju18.petmanagement.domain.community.comment.dto.DeleteCommentReqDto;
 import com.sju18.petmanagement.domain.community.comment.dto.FetchCommentReqDto;
 import com.sju18.petmanagement.domain.community.comment.dto.UpdateCommentReqDto;
 import com.sju18.petmanagement.domain.community.post.application.PostService;
+import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -31,6 +32,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final AccountService accountServ;
     private final PostService postService;
+    private final NotificationPushService notificationPushService;
 
     // CREATE
     @Transactional
@@ -64,6 +66,14 @@ public class CommentService {
 
         // save
         commentRepository.save(comment);
+
+        // 댓글을 단 대상 (포스트 작성 유저 OR 댓글 작성 유저)에게 댓글 알림 보내기, 단 본인이 본인의 포스트에 댓글을 적을 경우 알림 X
+        if(commentedPost != null && !commentedPost.getAuthor().equals(author)) {
+            notificationPushService.sendToSingleDevice("게시물 댓글 알림", author.getNickname() + "님이 집사님이 올리신 일기에 댓글을 적었어요!", commentedPost.getAuthor().getFcmRegistrationToken());
+        }
+        else {
+            notificationPushService.sendToSingleDevice("게시물 댓답글 알림", author.getNickname() + "님이 집사님이 적으신 댓글에 댓답글을 적었어요!", repliedComment.getAuthor().getFcmRegistrationToken());
+        }
         
         // 댓글 id 반환
         return comment.getId();

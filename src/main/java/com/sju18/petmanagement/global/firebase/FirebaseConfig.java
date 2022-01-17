@@ -1,4 +1,4 @@
-package com.sju18.petmanagement.global.config;
+package com.sju18.petmanagement.global.firebase;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;

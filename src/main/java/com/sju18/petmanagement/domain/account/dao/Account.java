@@ -37,4 +37,7 @@ public class Account {
 
     @Column
     private Long representativePetId;
+
+    @Column
+    private String fcmRegistrationToken;
 }
