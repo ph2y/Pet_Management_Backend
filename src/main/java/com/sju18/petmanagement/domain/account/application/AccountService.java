@@ -4,6 +4,7 @@ import com.sju18.petmanagement.domain.account.dao.Account;
 import com.sju18.petmanagement.domain.account.dao.AccountRepository;
 import com.sju18.petmanagement.domain.account.dto.CreateAccountReqDto;
 import com.sju18.petmanagement.domain.account.dto.UpdateAccountReqDto;
+import com.sju18.petmanagement.domain.account.dto.UpdateFcmRegistrationTokenReqDto;
 import com.sju18.petmanagement.domain.pet.pet.application.PetCascadeService;
 import com.sju18.petmanagement.global.exception.DtoValidityException;
 import com.sju18.petmanagement.global.message.MessageConfig;
@@ -128,6 +129,14 @@ public class AccountService {
         return account;
     }
 
+    @Transactional(readOnly = true)
+    public String fetchFcmRegistrationToken(Authentication auth) throws Exception {
+        // 기존 사용자 프로필 로드
+        Account currentAccount = this.fetchCurrentAccount(auth);
+
+        return currentAccount.getFcmRegistrationToken();
+    }
+
     public byte[] fetchAccountPhoto(Authentication auth, Long id) throws Exception {
         Account currentAccount;
 
@@ -171,9 +180,6 @@ public class AccountService {
         if (reqDto.getRepresentativePetId() != null && !reqDto.getRepresentativePetId().equals(currentAccount.getRepresentativePetId())) {
             currentAccount.setRepresentativePetId(reqDto.getRepresentativePetId());
         }
-        if (reqDto.getFcmRegistrationToken() != null && !reqDto.getFcmRegistrationToken().equals(currentAccount.getFcmRegistrationToken())) {
-            currentAccount.setFcmRegistrationToken(reqDto.getFcmRegistrationToken());
-        }
         if (reqDto.getNotification() != null && !reqDto.getNotification().equals(currentAccount.getNotification())) {
             currentAccount.setNotification(reqDto.getNotification());
         }
@@ -202,6 +208,20 @@ public class AccountService {
     }
 
     @Transactional
+    public void updateFcmRegistrationToken(Authentication auth, UpdateFcmRegistrationTokenReqDto reqDto) throws Exception {
+        // 기존 사용자 프로필 로드
+        Account currentAccount = this.fetchCurrentAccount(auth);
+
+        // 기존 토큰과 다른 경우 업데이트
+        if (reqDto.getFcmRegistrationToken() != null && !reqDto.getFcmRegistrationToken().equals(currentAccount.getFcmRegistrationToken())) {
+            currentAccount.setFcmRegistrationToken(reqDto.getFcmRegistrationToken());
+        }
+
+        // 기존 사용자 정보 변경사항 적용
+        accountRepository.save(currentAccount);
+    }
+
+    @Transactional
     public String updateAccountPhoto(Authentication auth, MultipartHttpServletRequest fileReq) throws Exception {
         // 기존 사용자 프로필 로드
         Account currentAccount = this.fetchCurrentAccount(auth);
@@ -223,6 +243,23 @@ public class AccountService {
     }
 
     @Transactional
+    public void deleteAccount(Authentication auth) throws Exception {
+        Account currentAccount = this.fetchCurrentAccount(auth);
+        fileServ.deleteAccountFileStorage(currentAccount.getId());
+        petCascadeServ.deleteAccountCascadeToPet(currentAccount);
+        accountRepository.deleteById(currentAccount.getId());
+    }
+
+    @Transactional
+    public void deleteFcmRegistrationToken(Authentication auth) throws Exception {
+        Account currentAccount = this.fetchCurrentAccount(auth);
+
+        currentAccount.setFcmRegistrationToken(null);
+
+        accountRepository.save(currentAccount);
+    }
+
+    @Transactional
     public void deleteAccountPhoto(Authentication auth) {
         // 기존 사용자 프로필 로드
         Account currentAccount = this.fetchCurrentAccount(auth);
@@ -233,14 +270,6 @@ public class AccountService {
         // 사용자 프로필에서 photoUrl 컬럼 null 설정 후 업데이트
         currentAccount.setPhotoUrl(null);
         accountRepository.save(currentAccount);
-    }
-
-    @Transactional
-    public void deleteAccount(Authentication auth) throws Exception {
-        Account currentAccount = this.fetchCurrentAccount(auth);
-        fileServ.deleteAccountFileStorage(currentAccount.getId());
-        petCascadeServ.deleteAccountCascadeToPet(currentAccount);
-        accountRepository.deleteById(currentAccount.getId());
     }
 
     public void setRepresentativePetToNull(Long ownerId, Long petId) throws Exception {

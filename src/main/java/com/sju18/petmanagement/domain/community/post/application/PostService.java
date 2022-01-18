@@ -75,7 +75,7 @@ public class PostService {
                 .map(Follow::getFollowing)
                 .collect(Collectors.toList());
         
-        // 비동기로 실행 필요
+        // TODO: 비동기로 실행 필요
         notificationPushService.sendToMultipleDevice(msgSrc.getMessage("notification.post.title", null, Locale.KOREA), msgSrc.getMessage("notification.post.body", new String[]{author.getNickname()}, Locale.KOREA), pushSubjectAccounts);
 
         // 게시물 id 반환

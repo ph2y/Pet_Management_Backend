@@ -37,7 +37,7 @@ public class AccountController {
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
             return ResponseEntity.status(400).body(new CreateAccountResDto(dtoMetadata));
         }
-        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.create.success", null, Locale.ENGLISH));
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.account.create.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new CreateAccountResDto(dtoMetadata));
     }
 
@@ -64,8 +64,23 @@ public class AccountController {
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
             return ResponseEntity.status(400).body(new FetchAccountResDto(dtoMetadata));
         }
-        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.fetch.success", null, Locale.ENGLISH));
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.account.fetch.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new FetchAccountResDto(dtoMetadata, account));
+    }
+
+    @PostMapping("/api/account/fcm/fetch")
+    public ResponseEntity<?> fetchFcmRegistrationToken(Authentication auth) {
+        DtoMetadata dtoMetadata;
+        final String fcmRegistrationToken;
+        try {
+            fcmRegistrationToken = accountServ.fetchFcmRegistrationToken(auth);
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new FetchFcmRegistrationTokenResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.fcm.update.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new FetchFcmRegistrationTokenResDto(dtoMetadata, fcmRegistrationToken));
     }
 
     @PostMapping("/api/account/photo/fetch")
@@ -92,7 +107,7 @@ public class AccountController {
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
             return ResponseEntity.status(400).body(new UpdateAccountResDto(dtoMetadata));
         }
-        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.update.success", null, Locale.ENGLISH));
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.account.update.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new UpdateAccountResDto(dtoMetadata));
     }
 
@@ -110,6 +125,20 @@ public class AccountController {
         return ResponseEntity.ok(new UpdateAccountPasswordResDto(dtoMetadata));
     }
 
+    @PostMapping("/api/account/fcm/update")
+    public ResponseEntity<?> updateFcmRegistrationToken(Authentication auth, @RequestBody UpdateFcmRegistrationTokenReqDto reqDto) {
+        DtoMetadata dtoMetadata;
+        try {
+            accountServ.updateFcmRegistrationToken(auth, reqDto);
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new UpdateFcmRegistrationTokenResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.fcm.update.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new UpdateFcmRegistrationTokenResDto(dtoMetadata));
+    }
+
     @PostMapping("/api/account/photo/update")
     public ResponseEntity<?> updateAccountPhoto(Authentication auth, MultipartHttpServletRequest fileReq) {
         DtoMetadata dtoMetadata;
@@ -125,6 +154,34 @@ public class AccountController {
         return ResponseEntity.ok(new UpdateAccountPhotoResDto(dtoMetadata, fileUrl));
     }
 
+    @PostMapping("/api/account/delete")
+    public ResponseEntity<?> deleteAccount(Authentication auth) {
+        DtoMetadata dtoMetadata;
+        try {
+            accountServ.deleteAccount(auth);
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new DeleteAccountResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.account.delete.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new DeleteAccountResDto(dtoMetadata));
+    }
+
+    @PostMapping("/api/account/fcm/delete")
+    public ResponseEntity<?> deleteFcmRegistrationToken(Authentication auth) {
+        DtoMetadata dtoMetadata;
+        try {
+            accountServ.deleteFcmRegistrationToken(auth);
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new DeleteFcmRegistrationTokenResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.fcm.delete.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new DeleteFcmRegistrationTokenResDto(dtoMetadata));
+    }
+
     @PostMapping("/api/account/photo/delete")
     public ResponseEntity<?> deleteAccountPhoto(Authentication auth) {
         DtoMetadata dtoMetadata;
@@ -138,19 +195,5 @@ public class AccountController {
         }
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.photo.delete.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new DeleteAccountPhotoResDto(dtoMetadata));
-    }
-
-    @PostMapping("/api/account/delete")
-    public ResponseEntity<?> deleteAccount(Authentication auth) {
-        DtoMetadata dtoMetadata;
-        try {
-            accountServ.deleteAccount(auth);
-        } catch (Exception e) {
-            logger.warn(e.toString());
-            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
-            return ResponseEntity.status(400).body(new DeleteAccountResDto(dtoMetadata));
-        }
-        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.delete.success", null, Locale.ENGLISH));
-        return ResponseEntity.ok(new DeleteAccountResDto(dtoMetadata));
     }
 }
