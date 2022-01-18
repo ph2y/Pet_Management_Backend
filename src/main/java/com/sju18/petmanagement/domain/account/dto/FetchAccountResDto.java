@@ -18,6 +18,8 @@ public class FetchAccountResDto {
     private String photoUrl;
     private String userMessage;
     private Long representativePetId;
+    private String fcmRegistrationToken;
+    private Boolean notification;
 
     // 정상 조회시 사용할 생성자
     public FetchAccountResDto(DtoMetadata dtoMetadata, Account account) {
@@ -31,6 +33,8 @@ public class FetchAccountResDto {
         this.photoUrl = account.getPhotoUrl();
         this.userMessage = account.getUserMessage();
         this.representativePetId = account.getRepresentativePetId();
+        this.fcmRegistrationToken = account.getFcmRegistrationToken();
+        this.notification = account.getNotification();
     }
 
     // 오류시 사용할 생성자
@@ -45,5 +49,7 @@ public class FetchAccountResDto {
         this.photoUrl = null;
         this.userMessage = null;
         this.representativePetId = null;
+        this.fcmRegistrationToken = null;
+        this.notification = null;
     }
 }

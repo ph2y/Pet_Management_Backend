@@ -22,6 +22,5 @@ public class UpdateAccountReqDto {
     private String userMessage;
     @PositiveOrZero(message = "valid.pet.id.notNegative")
     private Long representativePetId;
-    private String fcmRegistrationToken;
     private Boolean notification;
 }

@@ -55,7 +55,7 @@ public class AccountService {
                 .userMessage(reqDto.getUserMessage())
                 .representativePetId(null)
                 .fcmRegistrationToken(null)
-                .notification(true)
+                .notification(reqDto.getNotification())
                 .build();
 
         // DB에 계정정보 저장
