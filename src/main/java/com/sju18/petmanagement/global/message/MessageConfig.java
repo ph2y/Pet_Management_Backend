@@ -75,10 +75,12 @@ public class MessageConfig implements WebMvcConfigurer {
     @Bean
     public static MessageSource getCommunityMessageSource() {
         ReloadableResourceBundleMessageSource msgSrc = new ReloadableResourceBundleMessageSource();
+        msgSrc.setDefaultEncoding("UTF-8");
         msgSrc.setBasenames(
                 "static/messages/community/error",
                 "static/messages/community/response",
-                "static/messages/community/validation"
+                "static/messages/community/validation",
+                "static/messages/community/notification"
         );
         return msgSrc;
     }

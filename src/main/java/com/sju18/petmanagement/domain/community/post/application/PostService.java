@@ -76,7 +76,7 @@ public class PostService {
                 .collect(Collectors.toList());
         
         // 비동기로 실행 필요
-        notificationPushService.sendToMultipleDevice("게시물 알림", author.getNickname() + "님이 새 일기를 작성했어요!", pushSubjectAccounts);
+        notificationPushService.sendToMultipleDevice(msgSrc.getMessage("notification.post.title", null, Locale.KOREA), msgSrc.getMessage("notification.post.body", new String[]{author.getNickname()}, Locale.KOREA), pushSubjectAccounts);
 
         // 게시물 id 반환
         return post.getId();

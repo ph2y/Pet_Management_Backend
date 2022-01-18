@@ -22,7 +22,8 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FollowService {
-    private final MessageSource msgSrc = MessageConfig.getAccountMessageSource();
+    private final MessageSource accountMsgSrc = MessageConfig.getAccountMessageSource();
+    private final MessageSource communityMsgSrc = MessageConfig.getCommunityMessageSource();
     private final FollowRepository followRepository;
     private final AccountService accountServ;
     private final NotificationPushService notificationPushService;
@@ -41,7 +42,7 @@ public class FollowService {
         followRepository.save(follow);
 
         // Follower 인 유저에게 팔로우 알림 보내기
-        notificationPushService.sendToSingleDevice("팔로우 알림", following.getNickname() + "님이 당신을 팔로우하기 시작했습니다.", follower);
+        notificationPushService.sendToSingleDevice(communityMsgSrc.getMessage("notification.follow.title", null, Locale.KOREA), communityMsgSrc.getMessage("notification.follow.body", new String[]{following.getNickname()}, Locale.KOREA), follower);
     }
 
     // 현재 사용자가 팔로잉하고 있는, 사용자가 Following 객체이고 찾는 객체가 Follower 객체인 Follow 리스트 Fetch
@@ -74,7 +75,7 @@ public class FollowService {
 
         Follow follow = followRepository.findByFollowerIdAndFollowingId(follower.getId(), following.getId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        msgSrc.getMessage("error.noExists", null, Locale.ENGLISH)
+                        accountMsgSrc.getMessage("error.notExist", null, Locale.ENGLISH)
                 ));
 
         followRepository.delete(follow);
