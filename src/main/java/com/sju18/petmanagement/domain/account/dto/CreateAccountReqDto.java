@@ -32,4 +32,7 @@ public class CreateAccountReqDto {
 
     @Size(max = 200, message = "valid.account.userMessage.size")
     private String userMessage;
+
+    @NotNull(message = "valid.account.notification.null")
+    private Boolean notification;
 }
