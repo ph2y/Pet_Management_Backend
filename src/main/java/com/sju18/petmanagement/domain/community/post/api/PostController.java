@@ -89,7 +89,7 @@ public class PostController {
         DtoMetadata dtoMetadata;
         byte[] fileBinData;
         try {
-            fileBinData = postServ.fetchPostImage(reqDto.getId(), reqDto.getIndex());
+            fileBinData = postServ.fetchPostImage(reqDto.getId(), reqDto.getIndex(), reqDto.getImageType());
         } catch (Exception e) {
             logger.warn(e.toString());
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());

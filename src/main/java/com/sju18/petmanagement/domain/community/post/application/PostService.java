@@ -124,14 +124,14 @@ public class PostService {
                 ));
     }
 
-    public byte[] fetchPostImage(Long postId, Integer fileIndex) throws Exception {
+    public byte[] fetchPostImage(Long postId, Integer fileIndex, Integer imageType) throws Exception {
         Post currentPost = postRepository.findById(postId)
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.post.notExists", null, Locale.ENGLISH)
                 ));
 
         // 이미지 파일 인출
-        return fileServ.readFileFromFileMetadataListJson(currentPost.getImageAttachments(), fileIndex, ImageUtil.GENERAL_IMAGE);
+        return fileServ.readFileFromFileMetadataListJson(currentPost.getImageAttachments(), fileIndex, imageType);
     }
 
     public ResponseEntity<byte[]> fetchPostVideo(String fileUrl, String range) throws Exception {
