@@ -30,24 +30,24 @@ public class FileService {
     /**************************************************************************/
 
     // 파일 메타데이터 목록(stringify 된 JSON)을 이용하여 파일 URl 가져오기
-    public String readFileUrlFromFileMetadataListJson(String fileMetadataListJson, Integer fileIndex, int operationCode) throws IOException {
+    public String readFileUrlFromFileMetadataListJson(String fileMetadataListJson, Integer fileIndex, int fileType) throws IOException {
         Type collectionType = new TypeToken<List<FileMetadata>>(){}.getType();
         List<FileMetadata> fileMetadataList = new Gson()
                 .fromJson(fileMetadataListJson, collectionType);
         String fileUrl;
-        if(operationCode == ImageUtil.NOT_IMAGE) {
+        if(fileType == ImageUtil.NOT_IMAGE) {
             fileUrl = fileMetadataList.get(fileIndex).getUrl();
         }
         else {
-            fileUrl = ImageUtil.createImageUrl(fileMetadataList.get(fileIndex).getUrl(), operationCode);
+            fileUrl = ImageUtil.createImageUrl(fileMetadataList.get(fileIndex).getUrl(), fileType);
         }
 
         return fileUrl;
     }
 
     // 파일 메타데이터 목록(stringify 된 JSON)을 이용하여 파일 읽기
-    public byte[] readFileFromFileMetadataListJson(String fileMetadataListJson, Integer fileIndex, int operationCode) throws IOException {
-        String fileUrl = readFileUrlFromFileMetadataListJson(fileMetadataListJson, fileIndex, operationCode);
+    public byte[] readFileFromFileMetadataListJson(String fileMetadataListJson, Integer fileIndex, int fileType) throws IOException {
+        String fileUrl = readFileUrlFromFileMetadataListJson(fileMetadataListJson, fileIndex, fileType);
 
         InputStream mediaStream = new FileInputStream(fileUrl);
         byte[] fileBinData = IOUtil.toByteArray(mediaStream);
@@ -153,12 +153,12 @@ public class FileService {
     }
 
     // 게시물 데이터 리스트 전체 삭제 (임시)
-    public void deletePostFiles(String fileMetadataListJson, int operationCode) {
+    public void deletePostFiles(String fileMetadataListJson, int fileType) {
         Type collectionType = new TypeToken<List<FileMetadata>>(){}.getType();
         List<FileMetadata> fileMetadataList = new Gson()
                 .fromJson(fileMetadataListJson, collectionType);
 
-        if(operationCode == ImageUtil.NOT_IMAGE) {
+        if(fileType == ImageUtil.NOT_IMAGE) {
             fileMetadataList.forEach(fileMetadata -> deleteFile(fileMetadata.getUrl()));
         }
         else {
