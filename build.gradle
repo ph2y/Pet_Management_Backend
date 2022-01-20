@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.sju18'
-version = '0.0.35-SNAPSHOT'
+version = '0.0.36-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {

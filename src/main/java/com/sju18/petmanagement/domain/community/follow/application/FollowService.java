@@ -41,8 +41,13 @@ public class FollowService {
 
         followRepository.save(follow);
 
-        // Follower 인 유저에게 팔로우 알림 보내기
-        notificationPushService.sendToSingleDevice(communityMsgSrc.getMessage("notification.follow.title", null, Locale.KOREA), communityMsgSrc.getMessage("notification.follow.body", new String[]{following.getNickname()}, Locale.KOREA), follower);
+        // Follower 인 유저에게 팔로우 알림 보내기. 단, 본인일 경우 제외
+        if(!follower.equals(following)) {
+            notificationPushService.sendToSingleDevice(
+                    communityMsgSrc.getMessage("notification.follow.title", null, Locale.KOREA),
+                    communityMsgSrc.getMessage("notification.follow.body", new String[]{following.getNickname()}, Locale.KOREA),
+                    follower);
+        }
     }
 
     // 현재 사용자가 팔로잉하고 있는, 사용자가 Following 객체이고 찾는 객체가 Follower 객체인 Follow 리스트 Fetch

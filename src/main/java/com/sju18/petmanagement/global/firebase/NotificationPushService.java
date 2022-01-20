@@ -41,35 +41,38 @@ public class NotificationPushService {
                 .map(Account::getFcmRegistrationToken)
                 .collect(Collectors.toList());
 
-        // 알림 객체 설정
-        Notification notification = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
+        // FCM 토큰 리스트가 비어 있지 않은 경우에만 알림 보내기
+        if(!fcmRegistrationTokens.isEmpty()) {
+            // 알림 객체 설정
+            Notification notification = Notification.builder()
+                    .setTitle(title)
+                    .setBody(body)
+                    .build();
 
-        // 멀티캐스트 메세지 객체 설정
-        MulticastMessage message = MulticastMessage.builder()
-                .setNotification(notification)
-                .addAllTokens(fcmRegistrationTokens)
-                .build();
+            // 멀티캐스트 메세지 객체 설정
+            MulticastMessage message = MulticastMessage.builder()
+                    .setNotification(notification)
+                    .addAllTokens(fcmRegistrationTokens)
+                    .build();
 
-        // 메세지 FCM 서버에 보내기
-        BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
+            // 메세지 FCM 서버에 보내기
+            BatchResponse response = FirebaseMessaging.getInstance().sendMulticast(message);
 
-        // 성공적으로 보낸 메시지 출력
-        System.out.println(response.getSuccessCount() + " messages were sent successfully");
+            // 성공적으로 보낸 메시지 출력
+            System.out.println(response.getSuccessCount() + " messages were sent successfully");
 
-        if (response.getFailureCount() > 0) {
-            List<SendResponse> responses = response.getResponses();
-            List<String> failedTokens = new ArrayList<>();
+            if (response.getFailureCount() > 0) {
+                List<SendResponse> responses = response.getResponses();
+                List<String> failedTokens = new ArrayList<>();
 
-            for (int i = 0; i < responses.size(); i++) {
-                if (!responses.get(i).isSuccessful()) {
-                    failedTokens.add(fcmRegistrationTokens.get(i));
+                for (int i = 0; i < responses.size(); i++) {
+                    if (!responses.get(i).isSuccessful()) {
+                        failedTokens.add(fcmRegistrationTokens.get(i));
+                    }
                 }
+                // 전송 실패한 토큰들 출력
+                System.out.println("List of tokens that caused failures: " + failedTokens);
             }
-            // 전송 실패한 토큰들 출력
-            System.out.println("List of tokens that caused failures: " + failedTokens);
         }
     }
 }
