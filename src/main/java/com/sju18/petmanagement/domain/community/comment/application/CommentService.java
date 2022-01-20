@@ -69,10 +69,14 @@ public class CommentService {
 
         // 댓글을 단 대상 (포스트 작성 유저 OR 댓글 작성 유저)에게 댓글 알림 보내기, 단 본인이 본인의 포스트에 댓글을 적을 경우 알림 X
         if(commentedPost != null && !commentedPost.getAuthor().equals(author)) {
-            notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.comment.post.title", null, Locale.KOREA), msgSrc.getMessage("notification.comment.post.body", new String[]{author.getNickname()}, Locale.KOREA), commentedPost.getAuthor());
+            notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.comment.post.title", null, Locale.KOREA),
+                    msgSrc.getMessage("notification.comment.post.body", new String[]{author.getNickname()}, Locale.KOREA),
+                    commentedPost.getAuthor());
         }
-        else {
-            notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.comment.replied.title", null, Locale.KOREA), msgSrc.getMessage("notification.comment.replied.body", new String[]{author.getNickname()}, Locale.KOREA), repliedComment.getAuthor());
+        else if (repliedComment != null && !repliedComment.getAuthor().equals(author)) {
+            notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.comment.replied.title", null, Locale.KOREA),
+                    msgSrc.getMessage("notification.comment.replied.body", new String[]{author.getNickname()}, Locale.KOREA),
+                    repliedComment.getAuthor());
         }
         
         // 댓글 id 반환

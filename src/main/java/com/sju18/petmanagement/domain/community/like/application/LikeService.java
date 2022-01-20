@@ -64,8 +64,20 @@ public class LikeService {
         // save
         likeRepository.save(like);
 
-        // 해당 게시물을 쓴 유저에게 좋아요 알림 보내기
-        notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.like.title", null, Locale.KOREA), msgSrc.getMessage("notification.like.body", new String[]{likedAccount.getNickname()}, Locale.KOREA), likedPost.getAuthor());
+        // 해당 게시물/댓글을 쓴 유저에게 좋아요 알림 보내기. 단, 작성자가 본인일 경우는 제외
+        if(likedPost != null && !likedAccount.equals(likedPost.getAuthor())) {
+            notificationPushService.sendToSingleDevice(
+                    msgSrc.getMessage("notification.like.post.title", null, Locale.KOREA),
+                    msgSrc.getMessage("notification.like.post.body", new String[]{likedAccount.getNickname()}, Locale.KOREA),
+                    likedPost.getAuthor());
+        }
+        else if(likedComment != null && !likedAccount.equals(likedComment.getAuthor())) {
+            notificationPushService.sendToSingleDevice(
+                    msgSrc.getMessage("notification.like.comment.title", null, Locale.KOREA),
+                    msgSrc.getMessage("notification.like.comment.body", new String[]{likedAccount.getNickname()}, Locale.KOREA),
+                    likedComment.getAuthor());
+        }
+
     }
 
     private void checkAlreadyLikedPost(Long postId, Account likedAccount) throws Exception {

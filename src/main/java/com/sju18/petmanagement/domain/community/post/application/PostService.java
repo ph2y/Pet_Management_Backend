@@ -70,13 +70,17 @@ public class PostService {
         // 게시물 파일 저장소 생성
         fileServ.createPostFileStorage(post.getId());
 
-        // 게시물을 생성한 유저를 팔로우 하는 모든 유저들에게 알림 보내기 // TODO: uncomment after client code update
-//        List<Account> pushSubjectAccounts = followServ.fetchFollowing(auth).stream()
-//                .map(Follow::getFollowing)
-//                .collect(Collectors.toList());
+        // 게시물을 생성한 유저를 팔로우 하는 모든 유저들에게 알림 보내기. 단, 본인일 경우 제외
+        List<Account> pushSubjectAccounts = followServ.fetchFollowing(auth).stream()
+                .filter(follow -> !follow.getFollowing().equals(author))
+                .map(Follow::getFollowing)
+                .collect(Collectors.toList());
         
-        // TODO: 비동기로 실행 필요, uncomment after client code update
-//        notificationPushService.sendToMultipleDevice(msgSrc.getMessage("notification.post.title", null, Locale.KOREA), msgSrc.getMessage("notification.post.body", new String[]{author.getNickname()}, Locale.KOREA), pushSubjectAccounts);
+        // TODO: 비동기로 실행 필요
+        notificationPushService.sendToMultipleDevice(
+                msgSrc.getMessage("notification.post.title", null, Locale.KOREA),
+                msgSrc.getMessage("notification.post.body", new String[]{author.getNickname()}, Locale.KOREA),
+                pushSubjectAccounts);
 
         // 게시물 id 반환
         return post.getId();
