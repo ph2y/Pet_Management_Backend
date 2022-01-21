@@ -19,11 +19,8 @@ public class FirebaseConfig {
     @PostConstruct
     public void initFirebase() {
         try {
-            FileInputStream serviceAccount =
-                    new FileInputStream(resource.getFile());
-
             FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setCredentials(GoogleCredentials.fromStream(resource.getInputStream()))
                     .build();
 
             FirebaseApp.initializeApp(options);
