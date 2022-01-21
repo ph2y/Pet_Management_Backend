@@ -69,7 +69,7 @@ public class PostService {
         
         // 게시물 파일 저장소 생성
         fileServ.createPostFileStorage(post.getId());
-
+      
         // 게시물을 생성한 유저를 팔로우 하는 모든 유저들에게 알림 보내기. 단, 본인일 경우 제외
         List<Account> pushSubjectAccounts = followServ.fetchFollowing(auth).stream()
                 .filter(follow -> !follow.getFollowing().equals(author))
@@ -128,14 +128,14 @@ public class PostService {
                 ));
     }
 
-    public byte[] fetchPostImage(Long postId, Integer fileIndex) throws Exception {
+    public byte[] fetchPostImage(Long postId, Integer fileIndex, Integer imageType) throws Exception {
         Post currentPost = postRepository.findById(postId)
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.post.notExists", null, Locale.ENGLISH)
                 ));
 
         // 이미지 파일 인출
-        return fileServ.readFileFromFileMetadataListJson(currentPost.getImageAttachments(), fileIndex, ImageUtil.GENERAL_IMAGE);
+        return fileServ.readFileFromFileMetadataListJson(currentPost.getImageAttachments(), fileIndex, imageType);
     }
 
     public ResponseEntity<byte[]> fetchPostVideo(String fileUrl, String range) throws Exception {
