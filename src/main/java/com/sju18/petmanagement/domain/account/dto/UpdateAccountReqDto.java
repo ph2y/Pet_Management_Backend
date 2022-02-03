@@ -23,4 +23,6 @@ public class UpdateAccountReqDto {
     @PositiveOrZero(message = "valid.pet.id.notNegative")
     private Long representativePetId;
     private Boolean notification;
+    @PositiveOrZero(message = "valid.account.mapSearchRadius.notNegative")
+    private Integer mapSearchRadius;
 }
