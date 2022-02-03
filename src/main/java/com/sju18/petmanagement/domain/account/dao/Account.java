@@ -42,4 +42,6 @@ public class Account {
     private String fcmRegistrationToken;
     @Column(nullable = false)
     private Boolean notification;
+    @Column(nullable = false)
+    private Integer mapSearchRadius;
 }

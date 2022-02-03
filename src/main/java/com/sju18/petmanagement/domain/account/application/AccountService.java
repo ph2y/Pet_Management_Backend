@@ -56,6 +56,7 @@ public class AccountService {
                 .representativePetId(null)
                 .fcmRegistrationToken(null)
                 .notification(reqDto.getNotification())
+                .mapSearchRadius(10000)
                 .build();
 
         // DB에 계정정보 저장

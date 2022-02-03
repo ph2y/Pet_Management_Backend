@@ -20,6 +20,7 @@ public class FetchAccountResDto {
     private Long representativePetId;
     private String fcmRegistrationToken;
     private Boolean notification;
+    private Integer mapSearchRadius;
 
     // 정상 조회시 사용할 생성자
     public FetchAccountResDto(DtoMetadata dtoMetadata, Account account) {
@@ -35,6 +36,7 @@ public class FetchAccountResDto {
         this.representativePetId = account.getRepresentativePetId();
         this.fcmRegistrationToken = account.getFcmRegistrationToken();
         this.notification = account.getNotification();
+        this.mapSearchRadius = account.getMapSearchRadius();
     }
 
     // 오류시 사용할 생성자
@@ -51,5 +53,6 @@ public class FetchAccountResDto {
         this.representativePetId = null;
         this.fcmRegistrationToken = null;
         this.notification = null;
+        this.mapSearchRadius = null;
     }
 }
