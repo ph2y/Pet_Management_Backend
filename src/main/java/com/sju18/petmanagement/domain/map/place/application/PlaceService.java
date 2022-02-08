@@ -27,14 +27,10 @@ public class PlaceService {
     public void createPlace(CreatePlaceReqDto reqDto) {
         // 받은 입력 정보로 새 장소 정보 생성
         Place place = Place.builder()
-                .name(reqDto.getName())
-                .categoryName(reqDto.getCategoryName())
-                .categoryCode(reqDto.getCategoryCode())
-                .addressName(reqDto.getAddressName())
-                .roadAddressName(reqDto.getRoadAddressName())
                 .latitude(reqDto.getLatitude().doubleValue())
                 .longitude(reqDto.getLongitude().doubleValue())
-                .isOfficial(reqDto.getIsOfficial())
+                .name(reqDto.getName())
+                .categoryCode(reqDto.getCategoryCode())
                 .averageRating(null)
                 .phone(reqDto.getPhone())
                 .description(reqDto.getDescription())
@@ -72,30 +68,17 @@ public class PlaceService {
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.place.notExists", null, Locale.ENGLISH)
                 ));
-
-        if (!reqDto.getName().equals(currentPlace.getName())) {
-            currentPlace.setName(reqDto.getName());
-        }
-        if (!reqDto.getCategoryName().equals(currentPlace.getCategoryName())) {
-            currentPlace.setCategoryName(reqDto.getCategoryName());
-        }
-        if (!reqDto.getCategoryCode().equals(currentPlace.getCategoryCode())) {
-            currentPlace.setCategoryCode(reqDto.getCategoryCode());
-        }
-        if (!reqDto.getAddressName().equals(currentPlace.getAddressName())) {
-            currentPlace.setAddressName(reqDto.getAddressName());
-        }
-        if (!reqDto.getRoadAddressName().equals(currentPlace.getRoadAddressName())) {
-            currentPlace.setRoadAddressName(reqDto.getRoadAddressName());
-        }
         if (reqDto.getLatitude().doubleValue() != currentPlace.getLatitude()) {
             currentPlace.setLatitude(reqDto.getLatitude().doubleValue());
         }
         if (reqDto.getLongitude().doubleValue() != currentPlace.getLongitude()) {
             currentPlace.setLongitude(reqDto.getLongitude().doubleValue());
         }
-        if (!reqDto.getIsOfficial().equals(currentPlace.getIsOfficial())) {
-            currentPlace.setIsOfficial(currentPlace.getIsOfficial());
+        if (!reqDto.getName().equals(currentPlace.getName())) {
+            currentPlace.setName(reqDto.getName());
+        }
+        if (!reqDto.getCategoryCode().equals(currentPlace.getCategoryCode())) {
+            currentPlace.setCategoryCode(reqDto.getCategoryCode());
         }
         if (!reqDto.getPhone().equals(currentPlace.getPhone())) {
             currentPlace.setPhone(reqDto.getPhone());
