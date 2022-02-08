@@ -15,23 +15,14 @@ public class Place {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "place_id")
     private Long id;
-
-    @Column(nullable = false)
-    private String name;
-    @Column(nullable = false)
-    private String categoryName;
-    @Column(nullable = false)
-    private String categoryCode;
-    @Column(nullable = false)
-    private String addressName;
-    @Column(nullable = false)
-    private String roadAddressName;
     @Column(nullable = false)
     private Double latitude;
     @Column(nullable = false)
     private Double longitude;
     @Column(nullable = false)
-    private Boolean isOfficial;
+    private String name;
+    @Column(nullable = false)
+    private String categoryCode;
     @Column
     private Double averageRating;
     private String phone;
