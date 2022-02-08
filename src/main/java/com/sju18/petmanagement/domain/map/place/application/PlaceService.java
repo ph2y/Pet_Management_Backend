@@ -27,13 +27,13 @@ public class PlaceService {
     public void createPlace(CreatePlaceReqDto reqDto) {
         // 받은 입력 정보로 새 장소 정보 생성
         Place place = Place.builder()
-                .latitude(reqDto.getLatitude().doubleValue())
-                .longitude(reqDto.getLongitude().doubleValue())
                 .name(reqDto.getName())
                 .categoryCode(reqDto.getCategoryCode())
+                .latitude(reqDto.getLatitude().doubleValue())
+                .longitude(reqDto.getLongitude().doubleValue())
+                .description(reqDto.getDescription())
                 .averageRating(null)
                 .phone(reqDto.getPhone())
-                .description(reqDto.getDescription())
                 .operationHour(reqDto.getOperationHour())
                 .build();
 
@@ -68,23 +68,23 @@ public class PlaceService {
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.place.notExists", null, Locale.ENGLISH)
                 ));
-        if (reqDto.getLatitude().doubleValue() != currentPlace.getLatitude()) {
-            currentPlace.setLatitude(reqDto.getLatitude().doubleValue());
-        }
-        if (reqDto.getLongitude().doubleValue() != currentPlace.getLongitude()) {
-            currentPlace.setLongitude(reqDto.getLongitude().doubleValue());
-        }
         if (!reqDto.getName().equals(currentPlace.getName())) {
             currentPlace.setName(reqDto.getName());
         }
         if (!reqDto.getCategoryCode().equals(currentPlace.getCategoryCode())) {
             currentPlace.setCategoryCode(reqDto.getCategoryCode());
         }
-        if (!reqDto.getPhone().equals(currentPlace.getPhone())) {
-            currentPlace.setPhone(reqDto.getPhone());
+        if (reqDto.getLatitude().doubleValue() != currentPlace.getLatitude()) {
+            currentPlace.setLatitude(reqDto.getLatitude().doubleValue());
+        }
+        if (reqDto.getLongitude().doubleValue() != currentPlace.getLongitude()) {
+            currentPlace.setLongitude(reqDto.getLongitude().doubleValue());
         }
         if (!reqDto.getDescription().equals(currentPlace.getDescription())) {
             currentPlace.setDescription(reqDto.getDescription());
+        }
+        if (!reqDto.getPhone().equals(currentPlace.getPhone())) {
+            currentPlace.setPhone(reqDto.getPhone());
         }
         if (!reqDto.getOperationHour().equals(currentPlace.getOperationHour())) {
             currentPlace.setOperationHour(reqDto.getOperationHour());
