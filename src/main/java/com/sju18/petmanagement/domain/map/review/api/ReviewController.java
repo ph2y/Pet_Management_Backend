@@ -33,16 +33,17 @@ public class ReviewController {
     @PostMapping("/api/review/create")
     public ResponseEntity<?> createReview(Authentication auth, @Valid @RequestBody CreateReviewReqDto reqDto) {
         DtoMetadata dtoMetadata;
+        Long reviewId;
 
         try {
-            reviewServ.createReview(auth, reqDto);
+            reviewId = reviewServ.createReview(auth, reqDto);
         } catch (Exception e) {
             logger.warn(e.toString());
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
             return ResponseEntity.status(400).body(new CreateReviewResDto(dtoMetadata));
         }
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.review.create.success", null, Locale.ENGLISH));
-        return ResponseEntity.ok(new CreateReviewResDto(dtoMetadata));
+        return ResponseEntity.ok(new CreateReviewResDto(dtoMetadata, reviewId));
     }
 
     // READ
