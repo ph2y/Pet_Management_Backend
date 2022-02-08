@@ -16,17 +16,17 @@ public class Place {
     @Column(name = "place_id")
     private Long id;
     @Column(nullable = false)
-    private Double latitude;
-    @Column(nullable = false)
-    private Double longitude;
-    @Column(nullable = false)
     private String name;
     @Column(nullable = false)
     private String categoryCode;
+    @Column(nullable = false)
+    private Double latitude;
+    @Column(nullable = false)
+    private Double longitude;
+    @Lob
+    private String description;
     @Column
     private Double averageRating;
     private String phone;
-    @Lob
-    private String description;
     private String operationHour;
 }
