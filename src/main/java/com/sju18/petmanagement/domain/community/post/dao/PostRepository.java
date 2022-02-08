@@ -28,8 +28,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllByTaggedPetId(@Param("petId") Long taggedPetId, Pageable pageable);
 
     @Query(
-            value = "SELECT * FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me",
-            countQuery = "SELECT COUNT(*) FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me",
+            value = "SELECT * FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me",
             nativeQuery = true
     )
     Page<Post> findAllByRadiusOption(
@@ -43,8 +43,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     @Query(
-            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me)",
-            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me)",
+            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me)",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me)",
             nativeQuery = true
     )
     Page<Post> findAllByRadiusOptionAndTopPostId(
@@ -59,8 +59,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     @Query(
-            value = "SELECT * FROM post AS p WHERE p.account_id IN :friends OR p.account_id=:me",
-            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.account_id IN :friends OR p.account_id=:me",
+            value = "SELECT * FROM post AS p WHERE (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me",
             nativeQuery = true
     )
     Page<Post> findAllByFriendAndSelfOption(
@@ -70,8 +70,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     @Query(
-            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.account_id IN :friends OR p.account_id=:me)",
-            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (p.account_id IN :friends OR p.account_id=:me)",
+            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND ((p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me)",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND ((p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me)",
             nativeQuery = true
     )
     Page<Post> findAllByFriendAndSelfOptionAndTopPostId(
