@@ -56,7 +56,7 @@ public class AccountService {
                 .representativePetId(null)
                 .fcmRegistrationToken(null)
                 .notification(reqDto.getNotification())
-                .mapSearchRadius(10000)
+                .mapSearchRadius(10000D)
                 .build();
 
         // DB에 계정정보 저장
@@ -183,6 +183,9 @@ public class AccountService {
         }
         if (reqDto.getNotification() != null && !reqDto.getNotification().equals(currentAccount.getNotification())) {
             currentAccount.setNotification(reqDto.getNotification());
+        }
+        if (reqDto.getMapSearchRadius() != null && !reqDto.getMapSearchRadius().equals(currentAccount.getMapSearchRadius())) {
+            currentAccount.setMapSearchRadius(reqDto.getMapSearchRadius());
         }
 
         // 기존 사용자 정보 변경사항 적용

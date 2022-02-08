@@ -43,5 +43,5 @@ public class Account {
     @Column(nullable = false)
     private Boolean notification;
     @Column(nullable = false)
-    private Integer mapSearchRadius;
+    private Double mapSearchRadius;
 }

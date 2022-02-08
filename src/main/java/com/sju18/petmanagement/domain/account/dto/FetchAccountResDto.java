@@ -20,7 +20,7 @@ public class FetchAccountResDto {
     private Long representativePetId;
     private String fcmRegistrationToken;
     private Boolean notification;
-    private Integer mapSearchRadius;
+    private Double mapSearchRadius;
 
     // 정상 조회시 사용할 생성자
     public FetchAccountResDto(DtoMetadata dtoMetadata, Account account) {

@@ -7,6 +7,7 @@ import com.sju18.petmanagement.domain.map.place.dto.DeletePlaceReqDto;
 import com.sju18.petmanagement.domain.map.place.dto.FetchPlaceReqDto;
 import com.sju18.petmanagement.domain.map.place.dto.UpdatePlaceReqDto;
 import com.sju18.petmanagement.global.message.MessageConfig;
+import com.sju18.petmanagement.global.position.RangeCalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import java.util.Locale;
 public class PlaceService {
     private final MessageSource msgSrc = MessageConfig.getMapMessageSource();
     private final PlaceRepository placeRepository;
-    private final PlacePositionService placePositionServ;
+    private final RangeCalService rangeCalService;
 
     // CREATE
     @Transactional
@@ -51,10 +52,10 @@ public class PlaceService {
         Double currentLat = reqDto.getCurrentLat().doubleValue();
         Double currentLong = reqDto.getCurrentLong().doubleValue();
         Double range = reqDto.getRange().doubleValue();
-        Double latMin = placePositionServ.calcMinLatForRange(currentLat, range);
-        Double latMax = placePositionServ.calcMaxLatForRange(currentLat, range);
-        Double longMin = placePositionServ.calcMinLongForRange(currentLat, currentLong, range);
-        Double longMax = placePositionServ.calcMaxLongForRange(currentLat, currentLong, range);
+        Double latMin = rangeCalService.calcMinLatForRange(currentLat, range);
+        Double latMax = rangeCalService.calcMaxLatForRange(currentLat, range);
+        Double longMin = rangeCalService.calcMinLongForRange(currentLat, currentLong, range);
+        Double longMax = rangeCalService.calcMaxLongForRange(currentLat, currentLong, range);
         return placeRepository.findAllByDistance(latMin, latMax, longMin, longMax);
     }
     @Transactional(readOnly = true)

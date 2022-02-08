@@ -36,7 +36,8 @@ public class MessageConfig implements WebMvcConfigurer {
                 "static/messages/account/validation",
                 "static/messages/pet/validation",
                 "static/messages/community/validation",
-                "static/messages/map/validation"
+                "static/messages/map/validation",
+                "static/messages/position/validation"
         );
         return msgSrc;
     }
@@ -80,7 +81,8 @@ public class MessageConfig implements WebMvcConfigurer {
                 "static/messages/community/error",
                 "static/messages/community/response",
                 "static/messages/community/validation",
-                "static/messages/community/notification"
+                "static/messages/community/notification",
+                "static/messages/position/validation"
         );
         return msgSrc;
     }
@@ -91,7 +93,8 @@ public class MessageConfig implements WebMvcConfigurer {
         msgSrc.setBasenames(
                 "static/messages/map/error",
                 "static/messages/map/response",
-                "static/messages/map/validation"
+                "static/messages/map/validation",
+                "static/messages/position/validation"
         );
         return msgSrc;
     }

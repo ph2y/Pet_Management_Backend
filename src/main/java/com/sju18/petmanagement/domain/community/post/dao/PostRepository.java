@@ -28,6 +28,60 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAllByTaggedPetId(@Param("petId") Long taggedPetId, Pageable pageable);
 
     @Query(
+            value = "SELECT * FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me",
+            nativeQuery = true
+    )
+    Page<Post> findAllByRadiusOption(
+            @Param("latMin") Double latMin,
+            @Param("latMax") Double latMax,
+            @Param("longMin") Double longMin,
+            @Param("longMax") Double longMax,
+            @Param("friends") Collection<Long> friendAccountIdList,
+            @Param("me") Long myAccountId,
+            Pageable pageable
+    );
+
+    @Query(
+            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me)",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR p.account_id IN :friends OR p.account_id=:me)",
+            nativeQuery = true
+    )
+    Page<Post> findAllByRadiusOptionAndTopPostId(
+            @Param("latMin") Double latMin,
+            @Param("latMax") Double latMax,
+            @Param("longMin") Double longMin,
+            @Param("longMax") Double longMax,
+            @Param("top") Long topPostId,
+            @Param("friends") Collection<Long> friendAccountIdList,
+            @Param("me") Long myAccountId,
+            Pageable pageable
+    );
+
+    @Query(
+            value = "SELECT * FROM post AS p WHERE p.account_id IN :friends OR p.account_id=:me",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.account_id IN :friends OR p.account_id=:me",
+            nativeQuery = true
+    )
+    Page<Post> findAllByFriendAndSelfOption(
+            @Param("friends") Collection<Long> friendAccountIdList,
+            @Param("me") Long myAccountId,
+            Pageable pageable
+    );
+
+    @Query(
+            value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.account_id IN :friends OR p.account_id=:me)",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (p.account_id IN :friends OR p.account_id=:me)",
+            nativeQuery = true
+    )
+    Page<Post> findAllByFriendAndSelfOptionAndTopPostId(
+            @Param("top") Long topPostId,
+            @Param("friends") Collection<Long> friendAccountIdList,
+            @Param("me") Long myAccountId,
+            Pageable pageable
+    );
+
+    @Query(
             value = "SELECT * FROM post AS p WHERE p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me)",
             countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me)",
             nativeQuery = true
@@ -39,8 +93,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     );
 
     @Query(
-            // value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
-            // countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND p.account_id IN :friends) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
             value = "SELECT * FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND (p.account_id IN :friends OR p.account_id=:me)) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
             countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.post_id <= :top AND (p.disclosure=\"PUBLIC\" OR (p.disclosure=\"FRIEND\" AND (p.account_id IN :friends OR p.account_id=:me)) OR (p.disclosure=\"PRIVATE\" AND p.account_id=:me))",
             nativeQuery = true
