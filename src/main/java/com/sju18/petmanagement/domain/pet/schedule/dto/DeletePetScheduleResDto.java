@@ -7,5 +7,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DeletePetScheduleResDto {
-    private DtoMetadata dtoMetadata;
+    private DtoMetadata _metadata;
 }
