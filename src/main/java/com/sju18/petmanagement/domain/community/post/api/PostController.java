@@ -68,7 +68,14 @@ public class PostController {
                 postList = postPage.getContent();
                 pageable = postPage.getPageable();
                 isLast = postPage.isLast();
-            } else {
+            } else if (reqDto.getCurrentLat() != null && reqDto.getCurrentLong() != null) {
+                // 반경 내 전체 게시물 조회 요청
+                final Page<Post> postPage = postServ.fetchPostByRadius(auth, reqDto.getCurrentLat(), reqDto.getCurrentLong(), reqDto.getPageIndex(), reqDto.getTopPostId());
+                postList = postPage.getContent();
+                pageable = postPage.getPageable();
+                isLast = postPage.isLast();
+            }
+            else {
                 // 전체 게시물 조회 요청
                 final Page<Post> postPage = postServ.fetchPostByDefault(auth, reqDto.getPageIndex(), reqDto.getTopPostId());
                 postList = postPage.getContent();

@@ -21,8 +21,8 @@ public class CreatePostReqDto {
     private String disclosure;
     @DecimalMax(value = "90.0", message = "valid.post.geoTagLat.max")
     @DecimalMin(value = "-90.0", message = "valid.post.geoTagLat.min")
-    private BigDecimal geoTagLat;
+    private Double geoTagLat;
     @DecimalMax(value = "180.0", message = "valid.post.geoTagLong.max")
     @DecimalMin(value = "-180.0", message = "valid.post.geoTagLong.min")
-    private BigDecimal geoTagLong;
+    private Double geoTagLong;
 }
