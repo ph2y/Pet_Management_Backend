@@ -23,6 +23,8 @@ public class CreatePlaceReqDto {
     private String description;
     @Pattern(regexp = "(^02|^\\d{3})-(\\d{3}|\\d{4})-\\d{4}", message = "valid.place.phone.phone")
     private String phone;
+    @Size(max = 50, message = "valid.place.operationDay.size")
+    private String operationDay;
     @Size(max = 50, message = "valid.place.operationHour.size")
     private String operationHour;
 }

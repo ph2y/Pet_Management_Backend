@@ -26,7 +26,8 @@ public class Place {
     @Lob
     private String description;
     @Column
-    private Double averageRating;
     private String phone;
+    private Double averageRating;
+    private String operationDay;
     private String operationHour;
 }
