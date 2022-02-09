@@ -33,8 +33,9 @@ public class PlaceService {
                 .latitude(reqDto.getLatitude().doubleValue())
                 .longitude(reqDto.getLongitude().doubleValue())
                 .description(reqDto.getDescription())
-                .averageRating(null)
                 .phone(reqDto.getPhone())
+                .averageRating(null)
+                .operationDay(reqDto.getOperationDay())
                 .operationHour(reqDto.getOperationHour())
                 .build();
 
@@ -86,6 +87,9 @@ public class PlaceService {
         }
         if (!reqDto.getPhone().equals(currentPlace.getPhone())) {
             currentPlace.setPhone(reqDto.getPhone());
+        }
+        if (!reqDto.getOperationDay().equals(currentPlace.getOperationDay())) {
+            currentPlace.setOperationDay(reqDto.getOperationDay());
         }
         if (!reqDto.getOperationHour().equals(currentPlace.getOperationHour())) {
             currentPlace.setOperationHour(reqDto.getOperationHour());
