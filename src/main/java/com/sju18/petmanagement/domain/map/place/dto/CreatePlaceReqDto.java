@@ -13,11 +13,11 @@ public class CreatePlaceReqDto {
     @NotBlank(message = "valid.place.categoryCode.blank")
     @Size(max = 10, message = "valid.place.categoryCode.size")
     private String categoryCode;
-    @DecimalMax(value = "90.0", message = "valid.place.latitude.max")
-    @DecimalMin(value = "-90.0", message = "valid.place.latitude.min")
+    @DecimalMax(value = "90.0", message = "valid.position.latitude.max")
+    @DecimalMin(value = "-90.0", message = "valid.position.latitude.min")
     private BigDecimal latitude;
-    @DecimalMax(value = "180.0", message = "valid.place.longitude.max")
-    @DecimalMin(value = "-180.0", message = "valid.place.longitude.min")
+    @DecimalMax(value = "180.0", message = "valid.position.longitude.max")
+    @DecimalMin(value = "-180.0", message = "valid.position.longitude.min")
     private BigDecimal longitude;
     @Size(max = 1000, message = "valid.place.description.size")
     private String description;
