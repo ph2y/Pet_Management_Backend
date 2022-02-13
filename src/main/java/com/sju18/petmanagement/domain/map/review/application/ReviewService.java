@@ -38,7 +38,7 @@ public class ReviewService {
 
     // CREATE
     @Transactional
-    public void createReview(Authentication auth, CreateReviewReqDto reqDto) throws Exception {
+    public Long createReview(Authentication auth, CreateReviewReqDto reqDto) throws Exception {
         Account author = accountServ.fetchCurrentAccount(auth);
         Place place = placeServ.fetchPlaceById(reqDto.getPlaceId());
 
@@ -61,6 +61,9 @@ public class ReviewService {
 
         // 리뷰 파일 저장소 생성
         fileServ.createReviewFileStorage(review.getId());
+
+        // 리뷰 id 반환
+        return review.getId();
     }
 
     // READ

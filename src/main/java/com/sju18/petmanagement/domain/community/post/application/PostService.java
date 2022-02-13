@@ -12,6 +12,7 @@ import com.sju18.petmanagement.domain.pet.pet.application.PetService;
 import com.sju18.petmanagement.domain.pet.pet.dao.Pet;
 import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
+import com.sju18.petmanagement.global.position.RangeCalService;
 import com.sju18.petmanagement.global.storage.FileMetadata;
 import com.sju18.petmanagement.global.storage.FileService;
 import com.sju18.petmanagement.global.storage.FileType;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 public class PostService {
     private final MessageSource msgSrc = MessageConfig.getCommunityMessageSource();
     private final PostRepository postRepository;
+    private final RangeCalService rangeCalService;
     private final AccountService accountServ;
     private final PetService petServ;
     private final FollowService followServ;
@@ -88,6 +91,44 @@ public class PostService {
 
 
     // READ
+    @Transactional(readOnly = true)
+    public Page<Post> fetchPostByRadius(Authentication auth, Double currentLat, Double currentLong, Integer pageIndex, Long topPostId) {
+        Account author = accountServ.fetchCurrentAccount(auth);
+        // 기본 조건에 따른 최신 게시물 인출 (커뮤니티 메인화면 조회시)
+        // 조건: author의
+        //      mapSearchRadius = n (n > 0): mapSearchRadius 내 모든 공개 포스트 + 본인 포스트 + 친구 포스트
+        //      mapSearchRadius = 0 : 본인 포스트 + 친구 포스트
+        // 추가조건: 만약 fromId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
+        if (pageIndex == null) {
+            pageIndex = 0;
+        }
+        Pageable pageQuery = PageRequest.of(pageIndex, 10, Sort.Direction.DESC, "post_id");
+
+        if(author.getMapSearchRadius() != 0D) {
+            Double latMin = rangeCalService.calcMinLatForRange(currentLat, author.getMapSearchRadius());
+            Double latMax = rangeCalService.calcMaxLatForRange(currentLat, author.getMapSearchRadius());
+            Double longMin = rangeCalService.calcMinLongForRange(currentLat, currentLong, author.getMapSearchRadius());
+            Double longMax = rangeCalService.calcMaxLongForRange(currentLat, currentLong, author.getMapSearchRadius());
+
+            if (topPostId != null) {
+                return postRepository
+                        .findAllByRadiusOptionAndTopPostId(latMin, latMax, longMin, longMax, topPostId, followServ.fetchFollower(author), author.getId(), pageQuery);
+            } else {
+                return postRepository
+                        .findAllByRadiusOption(latMin, latMax, longMin, longMax, followServ.fetchFollower(author), author.getId(), pageQuery);
+            }
+        }
+        else {
+            if (topPostId != null) {
+                return postRepository
+                        .findAllByFriendAndSelfOptionAndTopPostId(topPostId, followServ.fetchFollower(author), author.getId(), pageQuery);
+            } else {
+                return postRepository
+                        .findAllByFriendAndSelfOption(followServ.fetchFollower(author), author.getId(), pageQuery);
+            }
+        }
+    }
+
     @Transactional(readOnly = true)
     public Page<Post> fetchPostByDefault(Authentication auth, Integer pageIndex, Long topPostId) {
         Account author = accountServ.fetchCurrentAccount(auth);
@@ -211,11 +252,11 @@ public class PostService {
         if (!reqDto.getDisclosure().equals(currentPost.getDisclosure())) {
             currentPost.setDisclosure(reqDto.getDisclosure());
         }
-        if (reqDto.getGeoTagLat().doubleValue() != currentPost.getGeoTagLat()) {
-            currentPost.setGeoTagLat(reqDto.getGeoTagLat().doubleValue());
+        if (!reqDto.getGeoTagLat().equals(currentPost.getGeoTagLat())) {
+            currentPost.setGeoTagLat(reqDto.getGeoTagLat());
         }
-        if (reqDto.getGeoTagLong().doubleValue() != currentPost.getGeoTagLong()) {
-            currentPost.setGeoTagLong(reqDto.getGeoTagLong().doubleValue());
+        if (!reqDto.getGeoTagLong().equals(currentPost.getGeoTagLong())) {
+            currentPost.setGeoTagLong(reqDto.getGeoTagLong());
         }
         currentPost.setEdited(true);
 
