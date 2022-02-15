@@ -12,4 +12,8 @@ public class FetchReviewReqDto {
     private Long placeId;
     @PositiveOrZero(message = "valid.account.id.notNegative")
     private Long authorId;
+    @PositiveOrZero(message = "valid.review.pageIndex.notNegative")
+    private Integer pageIndex;
+    @PositiveOrZero(message = "valid.review.id.notNegative")
+    private Long topReviewId;
 }

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -50,26 +52,41 @@ public class ReviewController {
     @PostMapping("/api/review/fetch")
     public ResponseEntity<?> fetchReview(Authentication auth, @Valid @RequestBody FetchReviewReqDto reqDto) {
         DtoMetadata dtoMetadata;
-        List<Review> reviewList;
+        final List<Review> reviewList;
+        Pageable pageable = null;
+        Boolean isLast = null;
 
         try {
             if (reqDto.getId() != null) {
+                // 개별 리뷰 조회 요청
                 reviewList = new ArrayList<>();
                 reviewList.add(reviewServ.fetchReviewById(reqDto.getId()));
             } else if (reqDto.getPlaceId() != null) {
-                reviewList = reviewServ.fetchReviewByPlaceId(reqDto.getPlaceId());
+                // 특정 장소의 리뷰 리스트 요청
+                final Page<Review> reviewPage = reviewServ.fetchReviewByPlaceId(reqDto.getPlaceId(), reqDto.getPageIndex(), reqDto.getTopReviewId());
+                reviewList = reviewPage.getContent();
+                pageable = reviewPage.getPageable();
+                isLast = reviewPage.isLast();
             } else if (reqDto.getAuthorId() != null) {
-                reviewList = reviewServ.fetchReviewByAuthor(reqDto.getAuthorId());
+                // 특정 사용자의 리뷰 리스트 요청
+                final Page<Review> reviewPage =  reviewServ.fetchReviewByAuthor(reqDto.getAuthorId(), reqDto.getPageIndex());
+                reviewList = reviewPage.getContent();
+                pageable = reviewPage.getPageable();
+                isLast = reviewPage.isLast();
             } else {
-                reviewList = reviewServ.fetchMyReview(auth);
+                // 사용자가 작성한 리뷰 리스트 요청
+                final Page<Review> reviewPage = reviewServ.fetchMyReview(auth, reqDto.getPageIndex());
+                reviewList = reviewPage.getContent();
+                pageable = reviewPage.getPageable();
+                isLast = reviewPage.isLast();
             }
         } catch (Exception e) {
             logger.warn(e.toString());
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
-            return ResponseEntity.status(400).body(new FetchReviewResDto(dtoMetadata, null));
+            return ResponseEntity.status(400).body(new FetchReviewResDto(dtoMetadata));
         }
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.review.fetch.success", null, Locale.ENGLISH));
-        return ResponseEntity.ok(new FetchReviewResDto(dtoMetadata, reviewList));
+        return ResponseEntity.ok(new FetchReviewResDto(dtoMetadata, reviewList, pageable, isLast));
     }
 
     @PostMapping("/api/review/media/fetch")
