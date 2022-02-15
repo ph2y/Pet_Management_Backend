@@ -17,6 +17,10 @@ import com.sju18.petmanagement.global.storage.FileService;
 import com.sju18.petmanagement.global.storage.ImageUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,26 +72,58 @@ public class ReviewService {
 
     // READ
     @Transactional(readOnly = true)
-    public List<Review> fetchReviewByPlaceId(Long placeId) {
-        return reviewRepository.findAllByPlaceId(placeId);
+    public Page<Review> fetchReviewByPlaceId(Long placeId, Integer pageIndex, Long topReviewId) {
+        // 특정 장소의 리뷰 리스트 인출
+        // 조건: 가장 최신 리뷰 10개 조회
+        // 추가조건: 만약 topPostId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 리뷰만 검색
+        if (pageIndex == null) {
+            pageIndex = 0;
+        }
+        Pageable pageQuery = PageRequest.of(pageIndex, 10, Sort.Direction.DESC, "review_id");
+
+        if (topReviewId != null) {
+            return reviewRepository.findAllByPlaceIdAndTopReviewId(topReviewId, placeId, pageQuery);
+        }
+        else {
+            return reviewRepository.findAllByPlaceId(placeId, pageQuery);
+        }
     }
+
     @Transactional(readOnly = true)
-    public List<Review> fetchReviewByAuthor(Long authorId) throws Exception {
+    public Page<Review> fetchReviewByAuthor(Long authorId, Integer pageIndex) throws Exception {
+        // 특정 사용자의 리뷰 리스트 인출
         Account author = accountServ.fetchAccountById(authorId);
-        return reviewRepository.findAllByAuthor(author);
+
+        if(pageIndex == null) {
+            pageIndex = 0;
+        }
+        Pageable pageQuery = PageRequest.of(pageIndex, 10, Sort.Direction.DESC, "review_id");
+
+        return reviewRepository.findAllByAuthor(author.getId(), pageQuery);
     }
+
     @Transactional(readOnly = true)
-    public List<Review> fetchMyReview(Authentication auth) {
+    public Page<Review> fetchMyReview(Authentication auth, Integer pageIndex) {
+        // 사용자가 작성한 리뷰 리스트 인출
         Account author = accountServ.fetchCurrentAccount(auth);
-        return reviewRepository.findAllByAuthor(author);
+
+        if(pageIndex == null) {
+            pageIndex = 0;
+        }
+        Pageable pageQuery = PageRequest.of(pageIndex, 10, Sort.Direction.DESC, "review_id");
+
+        return reviewRepository.findAllByAuthor(author.getId(), pageQuery);
     }
+
     @Transactional(readOnly = true)
     public Review fetchReviewById(Long reviewId) throws Exception {
+        // 개별 리뷰 인출
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.review.notExists", null, Locale.ENGLISH)
                 ));
     }
+
     @Transactional(readOnly = true)
     public Double fetchAverageRatingByPlaceId(Long placeId) throws Exception {
         List<Integer> ratingList = reviewRepository.findAllByPlaceId(placeId)

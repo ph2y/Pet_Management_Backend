@@ -98,7 +98,7 @@ public class PostService {
         // 조건: author의
         //      mapSearchRadius = n (n > 0): mapSearchRadius 내 모든 공개 포스트 + 본인 포스트 + 친구 포스트
         //      mapSearchRadius = 0 : 본인 포스트 + 친구 포스트
-        // 추가조건: 만약 fromId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
+        // 추가조건: 만약 topPostId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
         if (pageIndex == null) {
             pageIndex = 0;
         }
@@ -134,7 +134,7 @@ public class PostService {
         Account author = accountServ.fetchCurrentAccount(auth);
         // 기본 조건에 따른 최신 게시물 인출 (커뮤니티 메인화면 조회시)
         // 조건: 가장 최신의 전체 공개 게시물 또는 친구의 게시물 10개 조회
-        // 추가조건: 만약 fromId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
+        // 추가조건: 만약 topPostId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
         if (pageIndex == null) {
             pageIndex = 0;
         }
