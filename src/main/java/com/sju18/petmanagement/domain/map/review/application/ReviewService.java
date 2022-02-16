@@ -75,7 +75,7 @@ public class ReviewService {
     public Page<Review> fetchReviewByPlaceId(Long placeId, Integer pageIndex, Long topReviewId) {
         // 특정 장소의 리뷰 리스트 인출
         // 조건: 가장 최신 리뷰 10개 조회
-        // 추가조건: 만약 topPostId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 리뷰만 검색
+        // 추가조건: 만약 topReviewId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 리뷰만 검색
         if (pageIndex == null) {
             pageIndex = 0;
         }
