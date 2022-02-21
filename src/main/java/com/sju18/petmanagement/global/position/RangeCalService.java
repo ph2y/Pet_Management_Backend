@@ -16,9 +16,16 @@ public class RangeCalService {
         return originalLat + (rangeByMeter / RADIUS_OF_EARTH_BY_METER) * (ONE_RADIAN);
     }
     public Double calcMinLongForRange(Double originalLat, Double originalLong, Double rangeByMeter) {
-        return originalLong + (rangeByMeter / RADIUS_OF_EARTH_BY_METER) * (ONE_RADIAN) / Math.cos(originalLat * (ONE_RADIAN));
+        System.out.printf("MinLong: %f\n", originalLong - (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
+                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180))));
+
+        return originalLong - (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
+                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180)));
     }
     public Double calcMaxLongForRange(Double originalLat, Double originalLong, Double rangeByMeter) {
-        return originalLong - (rangeByMeter / RADIUS_OF_EARTH_BY_METER) * (ONE_RADIAN) / Math.cos(originalLat * (ONE_RADIAN));
+        System.out.printf("MaxLong: %f\n", originalLong + (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
+                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180))));
+        return originalLong + (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
+                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180)));
     }
 }
