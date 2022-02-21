@@ -81,6 +81,14 @@ public class BookmarkService {
                 ));
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> fetchBookmarkedAccountIdList(Long placeId) throws Exception {
+        return bookmarkRepository.findAllByPlace(placeServ.fetchPlaceById(placeId)).stream()
+                .map(Bookmark::getAuthor)
+                .map(Account::getId)
+                .collect(Collectors.toList());
+    }
+
     // UPDATE
     @Transactional
     public void updateBookmark(Authentication auth, UpdateBookmarkReqDto reqDto) throws Exception {

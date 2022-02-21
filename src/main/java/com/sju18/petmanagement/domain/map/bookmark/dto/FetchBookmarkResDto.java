@@ -12,4 +12,5 @@ import java.util.List;
 public class FetchBookmarkResDto {
     private DtoMetadata _metadata;
     private List<Bookmark> bookmarkList;
+    private List<Long> bookmarkedAccountIdList;
 }

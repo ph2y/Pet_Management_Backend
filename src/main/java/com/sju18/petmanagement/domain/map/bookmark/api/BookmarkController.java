@@ -47,24 +47,31 @@ public class BookmarkController {
     @PostMapping("/api/bookmark/fetch")
     public ResponseEntity<?> fetchBookmark(Authentication auth, @Valid @RequestBody FetchBookmarkReqDto reqDto) {
         DtoMetadata dtoMetadata;
-        List<Bookmark> bookmarkList;
+        final List<Bookmark> bookmarkList;
+        final List<Long> bookmarkedAccountIdList;
 
         try {
             if (reqDto.getId() != null) {
                 bookmarkList = new ArrayList<>();
                 bookmarkList.add(bookmarkServ.fetchBookmarkById(reqDto.getId()));
+                bookmarkedAccountIdList = null;
             } else if(reqDto.getFolder() != null) {
                 bookmarkList = bookmarkServ.fetchBookmarkAuthorAndFolder(auth, reqDto.getFolder());
+                bookmarkedAccountIdList = null;
+            } else if(reqDto.getPlaceId() != null) {
+                bookmarkList = null;
+                bookmarkedAccountIdList = bookmarkServ.fetchBookmarkedAccountIdList(reqDto.getPlaceId());
             } else {
                 bookmarkList = bookmarkServ.fetchBookmarkByAuthor(auth);
+                bookmarkedAccountIdList = null;
             }
         } catch (Exception e) {
             logger.warn(e.toString());
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
-            return ResponseEntity.status(400).body(new FetchBookmarkResDto(dtoMetadata, null));
+            return ResponseEntity.status(400).body(new FetchBookmarkResDto(dtoMetadata, null, null));
         }
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.bookmark.fetch.success", null, Locale.ENGLISH));
-        return ResponseEntity.ok(new FetchBookmarkResDto(dtoMetadata, bookmarkList));
+        return ResponseEntity.ok(new FetchBookmarkResDto(dtoMetadata, bookmarkList, bookmarkedAccountIdList));
     }
 
     // UPDATE
