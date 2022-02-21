@@ -7,6 +7,7 @@ import com.sju18.petmanagement.domain.map.bookmark.dao.Bookmark;
 import com.sju18.petmanagement.domain.map.bookmark.dao.BookmarkRepository;
 import com.sju18.petmanagement.domain.map.place.application.PlaceService;
 import com.sju18.petmanagement.domain.map.place.dao.Place;
+import com.sju18.petmanagement.global.exception.DtoValidityException;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -32,6 +33,9 @@ public class BookmarkService {
         Account author = accountServ.fetchCurrentAccount(auth);
         Place place = placeServ.fetchPlaceById(reqDto.getPlaceId());
 
+        // 이미 해당 장소를 북마크하였는지 검증
+        this.checkAlreadyBookmarkedPlace(author, reqDto.getPlaceId());
+
         // 받은 사용자 정보와 입력 정보로 새 장소 즐겨찾기 정보 생성
         Bookmark bookmark = Bookmark.builder()
                 .author(author)
@@ -43,6 +47,14 @@ public class BookmarkService {
 
         // save
         bookmarkRepository.save(bookmark);
+    }
+
+    private void checkAlreadyBookmarkedPlace(Account author, Long placeId) throws Exception {
+        if(bookmarkRepository.existsByAuthorAndPlace(author, placeServ.fetchPlaceById(placeId))) {
+            throw new DtoValidityException(
+                    msgSrc.getMessage("error.dup.bookmark", null, Locale.ENGLISH)
+            );
+        }
     }
 
     // READ
@@ -117,12 +129,23 @@ public class BookmarkService {
     // DELETE
     public void deleteBookmark(Authentication auth, DeleteBookmarkReqDto reqDto) throws Exception {
         Account author = accountServ.fetchCurrentAccount(auth);
+        Bookmark bookmark;
 
-        // 받은 사용자 정보와 장소 즐겨찾기 id로 장소 즐겨찾기 정보 삭제
-        Bookmark bookmark = bookmarkRepository.findByAuthorAndId(author, reqDto.getId())
-                .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.bookmark.notExists", null, Locale.ENGLISH)
-                ));
+        if(reqDto.getId() != null) {
+            // 받은 사용자 정보와 장소 즐겨찾기 id로 장소 즐겨찾기 정보 삭제
+            bookmark = bookmarkRepository.findByAuthorAndId(author, reqDto.getId())
+                    .orElseThrow(() -> new Exception(
+                            msgSrc.getMessage("error.bookmark.notExists", null, Locale.ENGLISH)
+                    ));
+        }
+        else {
+            // 받은 사용자 정보와 장소 id로 장소 즐겨찾기 정보 삭제
+            bookmark = bookmarkRepository.findByAuthorAndPlace(author, placeServ.fetchPlaceById(reqDto.getPlaceId()))
+                    .orElseThrow(() -> new Exception(
+                            msgSrc.getMessage("error.bookmark.notExists", null, Locale.ENGLISH)
+                    ));
+        }
+
         bookmarkRepository.delete(bookmark);
     }
 
