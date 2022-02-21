@@ -15,8 +15,6 @@ import java.util.Optional;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
-    List<Review> findAllByPlaceId(Long placeId);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Review> findByAuthorAndId(Account author, Long id);
 

@@ -126,7 +126,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Double fetchAverageRatingByPlaceId(Long placeId) throws Exception {
-        List<Integer> ratingList = reviewRepository.findAllByPlaceId(placeId)
+        List<Integer> ratingList = reviewRepository.findAllByPlaceId(placeId, null).getContent()
                 .stream().map(Review::getRating).collect(Collectors.toList());
         return ratingList.stream().mapToDouble(rating -> rating).average()
                 .orElseThrow(() -> new Exception(
