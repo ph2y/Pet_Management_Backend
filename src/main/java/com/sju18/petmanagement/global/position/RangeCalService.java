@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 public class RangeCalService {
     final double RADIUS_OF_EARTH_BY_METER = 6378000;
     final double ONE_RADIAN = 180 / Math.PI;
+    final double KILOMETER_IN_METER = 1000;
+    final double LONGITUDE_FIRST_CORRECTION_VALUE = 111.41288;
+    final double LONGITUDE_SECOND_CORRECTION_VALUE = 0.09350;
+    final double LONGITUDE_THIRD_CORRECTION_VALUE = 0.00012;
 
     public Double calcMinLatForRange(Double originalLat, Double rangeByMeter) {
         return originalLat - (rangeByMeter / RADIUS_OF_EARTH_BY_METER) *(ONE_RADIAN);
@@ -16,16 +20,11 @@ public class RangeCalService {
         return originalLat + (rangeByMeter / RADIUS_OF_EARTH_BY_METER) * (ONE_RADIAN);
     }
     public Double calcMinLongForRange(Double originalLat, Double originalLong, Double rangeByMeter) {
-        System.out.printf("MinLong: %f\n", originalLong - (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
-                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180))));
-
-        return originalLong - (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
-                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180)));
+        return originalLong - (rangeByMeter / KILOMETER_IN_METER) / (LONGITUDE_FIRST_CORRECTION_VALUE * Math.cos(originalLat / (ONE_RADIAN))
+                - LONGITUDE_SECOND_CORRECTION_VALUE * Math.cos(3 * originalLat / (ONE_RADIAN)) + LONGITUDE_THIRD_CORRECTION_VALUE * Math.cos(5 * originalLat / (ONE_RADIAN)));
     }
     public Double calcMaxLongForRange(Double originalLat, Double originalLong, Double rangeByMeter) {
-        System.out.printf("MaxLong: %f\n", originalLong + (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
-                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180))));
-        return originalLong + (rangeByMeter / 1000) / (111.41288 * Math.cos(originalLat * (Math.PI / 180))
-                - 0.09350 * Math.cos(3 * originalLat * (Math.PI / 180)) + 0.00012 * Math.cos(5 * originalLat * (Math.PI / 180)));
+        return originalLong + (rangeByMeter / KILOMETER_IN_METER) / (LONGITUDE_FIRST_CORRECTION_VALUE * Math.cos(originalLat / (ONE_RADIAN))
+                - LONGITUDE_SECOND_CORRECTION_VALUE * Math.cos(3 * originalLat / (ONE_RADIAN)) + LONGITUDE_THIRD_CORRECTION_VALUE * Math.cos(5 * originalLat / (ONE_RADIAN)));
     }
 }
