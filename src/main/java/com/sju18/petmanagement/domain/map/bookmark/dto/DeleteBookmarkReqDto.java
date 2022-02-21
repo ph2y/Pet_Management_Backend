@@ -8,4 +8,6 @@ import javax.validation.constraints.PositiveOrZero;
 public class DeleteBookmarkReqDto {
     @PositiveOrZero(message = "valid.bookmark.id.notNegative")
     Long id;
+    @PositiveOrZero(message = "valid.place.id.notNegative")
+    Long placeId;
 }
