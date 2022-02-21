@@ -11,4 +11,6 @@ public class FetchBookmarkReqDto {
     private Long id;
     @Size(max = 10, message = "valid.bookmark.folder.name.size")
     String folder;
+    @PositiveOrZero(message = "valid.place.id.notNegative")
+    private Long placeId;
 }

@@ -15,4 +15,5 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     Optional<List<Bookmark>> findAllByAuthorAndFolder(Account author, String folder);
     List<Bookmark> findAllByAuthor(Account author);
     Boolean existsByAuthorAndPlace(Account author, Place place);
+    List<Bookmark> findAllByPlace(Place place);
 }
