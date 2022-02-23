@@ -14,7 +14,7 @@ public class RangeCalService {
     final double LONGITUDE_THIRD_CORRECTION_VALUE = 0.00012;
 
     public Double calcMinLatForRange(Double originalLat, Double rangeByMeter) {
-        return originalLat - (rangeByMeter / RADIUS_OF_EARTH_BY_METER) *(ONE_RADIAN);
+        return originalLat - (rangeByMeter / RADIUS_OF_EARTH_BY_METER) * (ONE_RADIAN);
     }
     public Double calcMaxLatForRange(Double originalLat, Double rangeByMeter) {
         return originalLat + (rangeByMeter / RADIUS_OF_EARTH_BY_METER) * (ONE_RADIAN);
