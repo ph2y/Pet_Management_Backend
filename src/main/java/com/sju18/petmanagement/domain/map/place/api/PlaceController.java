@@ -52,7 +52,11 @@ public class PlaceController {
             if (reqDto.getId() != null) {
                 placeList = new ArrayList<>();
                 placeList.add(placeServ.fetchPlaceById(reqDto.getId()));
-            } else {
+            }
+            else if (reqDto.getKeyword() != null) {
+                placeList = placeServ.fetchPlaceByKeywordAndDistance(reqDto);
+            }
+            else {
                 placeList = placeServ.fetchPlaceByDistance(reqDto);
             }
         } catch (Exception e) {

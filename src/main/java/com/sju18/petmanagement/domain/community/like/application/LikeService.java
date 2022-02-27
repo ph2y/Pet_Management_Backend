@@ -77,7 +77,6 @@ public class LikeService {
                     msgSrc.getMessage("notification.like.comment.body", new String[]{likedAccount.getNickname()}, Locale.KOREA),
                     likedComment.getAuthor());
         }
-
     }
 
     private void checkAlreadyLikedPost(Long postId, Account likedAccount) throws Exception {

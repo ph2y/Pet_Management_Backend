@@ -1,5 +1,6 @@
 package com.sju18.petmanagement.domain.map.place.application;
 
+import com.sju18.petmanagement.domain.map.place.dao.CategoryCode;
 import com.sju18.petmanagement.domain.map.place.dao.Place;
 import com.sju18.petmanagement.domain.map.place.dao.PlaceRepository;
 import com.sju18.petmanagement.domain.map.place.dto.CreatePlaceReqDto;
@@ -9,10 +10,12 @@ import com.sju18.petmanagement.domain.map.place.dto.UpdatePlaceReqDto;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import com.sju18.petmanagement.global.position.RangeCalService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -45,22 +48,47 @@ public class PlaceService {
 
     // READ
     @Transactional(readOnly = true)
-    public List<Place> fetchPlaceByDistance(FetchPlaceReqDto reqDto) {
-        Double currentLat = reqDto.getCurrentLat().doubleValue();
-        Double currentLong = reqDto.getCurrentLong().doubleValue();
-        Double range = reqDto.getRange().doubleValue();
-        Double latMin = rangeCalService.calcMinLatForRange(currentLat, range);
-        Double latMax = rangeCalService.calcMaxLatForRange(currentLat, range);
-        Double longMin = rangeCalService.calcMinLongForRange(currentLat, currentLong, range);
-        Double longMax = rangeCalService.calcMaxLongForRange(currentLat, currentLong, range);
-        return placeRepository.findAllByDistance(latMin, latMax, longMin, longMax);
-    }
-    @Transactional(readOnly = true)
     public Place fetchPlaceById(Long placeId) throws Exception {
         return placeRepository.findById(placeId)
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.place.notExists", null, Locale.ENGLISH)
                 ));
+    }
+    @Transactional(readOnly = true)
+    public List<Place> fetchPlaceByKeywordAndDistance(FetchPlaceReqDto reqDto) {
+        List<Double> distanceRange = calDistanceRange(reqDto);
+
+        if(EnumUtils.isValidEnum(CategoryCode.class, reqDto.getKeyword())) {
+            return placeRepository.fetchAllByCategoryCodeAndDistance(distanceRange.get(0), distanceRange.get(1), distanceRange.get(2), distanceRange.get(3), reqDto.getKeyword());
+        }
+        else {
+            return placeRepository.fetchAllByKeywordAndDistance(distanceRange.get(0), distanceRange.get(1), distanceRange.get(2), distanceRange.get(3), reqDto.getKeyword());
+        }
+    }
+    @Transactional(readOnly = true)
+    public List<Place> fetchPlaceByDistance(FetchPlaceReqDto reqDto) {
+        List<Double> distanceRange = calDistanceRange(reqDto);
+        return placeRepository.findAllByDistance(distanceRange.get(0), distanceRange.get(1), distanceRange.get(2), distanceRange.get(3));
+    }
+
+    private List<Double> calDistanceRange(FetchPlaceReqDto reqDto) {
+        List<Double> distanceRange = new ArrayList<>();
+
+        Double currentLat = reqDto.getCurrentLat().doubleValue();
+        Double currentLong = reqDto.getCurrentLong().doubleValue();
+        Double range = reqDto.getRange().doubleValue();
+
+        Double latMin = rangeCalService.calcMinLatForRange(currentLat, range);
+        Double latMax = rangeCalService.calcMaxLatForRange(currentLat, range);
+        Double longMin = rangeCalService.calcMinLongForRange(currentLat, currentLong, range);
+        Double longMax = rangeCalService.calcMaxLongForRange(currentLat, currentLong, range);
+
+        distanceRange.add(latMin);
+        distanceRange.add(latMax);
+        distanceRange.add(longMin);
+        distanceRange.add(longMax);
+
+        return distanceRange;
     }
 
     // UPDATE

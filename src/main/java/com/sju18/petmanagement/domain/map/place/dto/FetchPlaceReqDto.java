@@ -5,12 +5,15 @@ import lombok.Data;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
 @Data
 public class FetchPlaceReqDto {
     @PositiveOrZero(message = "valid.place.id.notNegative")
     private Long id;
+    @Size(max = 50, message="valid.place.keyword.size")
+    private String keyword;
     @DecimalMax(value = "90.0", message = "valid.position.latitude.max")
     @DecimalMin(value = "-90.0", message = "valid.position.latitude.min")
     private BigDecimal currentLat;
