@@ -207,7 +207,7 @@ public class ReviewService {
                         msgSrc.getMessage("error.review.notExists", null, Locale.ENGLISH)
                 ));
         // 삭제할 리뷰의 레이팅 따로 저장
-        Integer rating = review.getRating();
+        Integer deletedReviewRating = review.getRating();
 
         // 리뷰 파일 저장소 삭제
         fileServ.deleteReviewFileStorage(review.getId());
@@ -218,6 +218,6 @@ public class ReviewService {
                 review.getPlaceId(), this.fetchAverageRatingByPlaceId(review.getPlaceId()), PlaceService.DECREMENT
         );
 
-        return rating;
+        return deletedReviewRating;
     }
 }
