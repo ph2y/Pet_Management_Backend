@@ -138,15 +138,16 @@ public class ReviewController {
     @PostMapping("/api/review/delete")
     public ResponseEntity<?> deleteReview(Authentication auth, @Valid @RequestBody DeleteReviewReqDto reqDto) {
         DtoMetadata dtoMetadata;
+        Integer rating;
 
         try {
-            reviewServ.deleteReview(auth, reqDto);
+            rating = reviewServ.deleteReview(auth, reqDto);
         } catch (Exception e) {
             logger.warn(e.toString());
             dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
             return ResponseEntity.status(400).body(new DeleteReviewResDto(dtoMetadata));
         }
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.review.delete.success", null, Locale.ENGLISH));
-        return ResponseEntity.ok(new DeleteReviewResDto(dtoMetadata));
+        return ResponseEntity.ok(new DeleteReviewResDto(dtoMetadata, rating));
     }
 }

@@ -26,6 +26,10 @@ public class PlaceService {
     private final PlaceRepository placeRepository;
     private final RangeCalService rangeCalService;
 
+    public static final int INCREMENT = 1;
+    public static final int NO_CHANGE = 0;
+    public static final int DECREMENT = -1;
+
     // CREATE
     @Transactional
     public void createPlace(CreatePlaceReqDto reqDto) {
@@ -38,6 +42,7 @@ public class PlaceService {
                 .description(reqDto.getDescription())
                 .phone(reqDto.getPhone())
                 .averageRating(null)
+                .reviewCount(0L)
                 .operationDay(reqDto.getOperationDay())
                 .operationHour(reqDto.getOperationHour())
                 .build();
@@ -127,16 +132,17 @@ public class PlaceService {
         placeRepository.save(currentPlace);
     }
     @Transactional
-    public void updatePlaceAverageRating(Long placeId, Double placeRating) throws Exception {
+    public void updatePlaceAverageRatingAndReviewCount(Long placeId, Double placeRating, int reviewOperator) throws Exception {
         Place currentPlace = placeRepository.findById(placeId)
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.place.notExists", null, Locale.ENGLISH)
                 ));
         currentPlace.setAverageRating(placeRating);
+        currentPlace.setReviewCount(currentPlace.getReviewCount() + reviewOperator);
         placeRepository.save(currentPlace);
     }
-
     // DELETE
+    @Transactional
     public void deletePlace(DeletePlaceReqDto reqDto) throws Exception {
         // 받은 장소 id로 장소 정보 삭제
         Place place = placeRepository.findById(reqDto.getId())
