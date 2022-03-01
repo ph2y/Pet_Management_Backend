@@ -60,8 +60,8 @@ public class ReviewService {
         // save
         reviewRepository.save(review);
 
-        // place 평균평점 갱신
-        placeServ.updatePlaceAverageRating(place.getId(), this.fetchAverageRatingByPlaceId(place.getId()));
+        // place 평균평점 및 리뷰 개수 갱신
+        placeServ.updatePlaceAverageRatingAndReviewCount(place.getId(), this.fetchAverageRatingByPlaceId(place.getId()), PlaceService.INCREMENT);
 
         // 리뷰 파일 저장소 생성
         fileServ.createReviewFileStorage(review.getId());
@@ -167,8 +167,8 @@ public class ReviewService {
         reviewRepository.save(currentReview);
 
         // place 평균평점 갱신
-        placeServ.updatePlaceAverageRating(
-                currentReview.getPlaceId(), this.fetchAverageRatingByPlaceId(currentReview.getPlaceId())
+        placeServ.updatePlaceAverageRatingAndReviewCount(
+                currentReview.getPlaceId(), this.fetchAverageRatingByPlaceId(currentReview.getPlaceId()), PlaceService.NO_CHANGE
         );
     }
 
@@ -197,7 +197,8 @@ public class ReviewService {
     }
 
     // DELETE
-    public void deleteReview(Authentication auth, DeleteReviewReqDto reqDto) throws Exception {
+    @Transactional
+    public Integer deleteReview(Authentication auth, DeleteReviewReqDto reqDto) throws Exception {
         Account author = accountServ.fetchCurrentAccount(auth);
 
         // 받은 사용자 정보와 장소 즐겨찾기 id로 장소 즐겨찾기 정보 삭제
@@ -205,13 +206,18 @@ public class ReviewService {
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.review.notExists", null, Locale.ENGLISH)
                 ));
+        // 삭제할 리뷰의 레이팅 따로 저장
+        Integer rating = review.getRating();
+
         // 리뷰 파일 저장소 삭제
         fileServ.deleteReviewFileStorage(review.getId());
         reviewRepository.delete(review);
 
         // place 평균평점 갱신
-        placeServ.updatePlaceAverageRating(
-                review.getPlaceId(), this.fetchAverageRatingByPlaceId(review.getPlaceId())
+        placeServ.updatePlaceAverageRatingAndReviewCount(
+                review.getPlaceId(), this.fetchAverageRatingByPlaceId(review.getPlaceId()), PlaceService.DECREMENT
         );
+
+        return rating;
     }
 }

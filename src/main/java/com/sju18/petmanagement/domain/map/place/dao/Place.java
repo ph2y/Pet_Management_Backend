@@ -28,6 +28,7 @@ public class Place {
     @Column
     private String phone;
     private Double averageRating;
+    private Long reviewCount;
     private String operationDay;
     private String operationHour;
 }
