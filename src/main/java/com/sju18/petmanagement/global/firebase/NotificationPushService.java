@@ -2,6 +2,7 @@ package com.sju18.petmanagement.global.firebase;
 
 import com.google.firebase.messaging.*;
 import com.sju18.petmanagement.domain.account.dao.Account;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class NotificationPushService {
+    @Async
     public void sendToSingleDevice(String title, String body, Account pushSubjectAccount) throws FirebaseMessagingException {
         // FCM 토큰이 존재하고 알림이 ON 인 경우에만 알림 보내기
         if(pushSubjectAccount.getFcmRegistrationToken() != null && pushSubjectAccount.getNotification()) {
@@ -33,6 +35,7 @@ public class NotificationPushService {
         }
     }
 
+    @Async
     public void sendToMultipleDevice(String title, String body, List<Account> pushSubjectAccounts) throws FirebaseMessagingException {
         // FCM 토큰이 존재하고 알림이 ON 인 유저들의 FCM 토큰만 가져오기
         List<String> fcmRegistrationTokens = pushSubjectAccounts.stream()
