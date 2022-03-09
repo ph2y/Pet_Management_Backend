@@ -126,7 +126,7 @@ public class ReviewService {
         // 특정 장소에서 특정 회원의 리뷰 조회 요청
         return reviewRepository.findByPlaceIdAndAuthorId(placeId, authorId)
                 .orElseThrow(() -> new Exception(
-                   msgSrc.getMessage("error.review-notExists", null, Locale.ENGLISH)
+                   msgSrc.getMessage("error.review.myReviewOfPlace.notExists", null, Locale.ENGLISH)
                 ));
     }
 
