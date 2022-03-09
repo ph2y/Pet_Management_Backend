@@ -134,7 +134,8 @@ public class ReviewService {
     public Double fetchAverageRatingByPlaceId(Long placeId) throws Exception {
         List<Integer> ratingList = reviewRepository.findAllByPlaceId(placeId, null).getContent()
                 .stream().map(Review::getRating).collect(Collectors.toList());
-        return ratingList.stream().mapToDouble(rating -> rating).average()
+        if(ratingList.size() == 0) return 0.0;
+        else return ratingList.stream().mapToDouble(rating -> rating).average()
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.review.avgCalcFailure", null, Locale.ENGLISH)
                 ));
