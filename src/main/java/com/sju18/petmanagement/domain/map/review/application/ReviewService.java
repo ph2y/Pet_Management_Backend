@@ -91,15 +91,12 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Page<Review> fetchReviewByAuthor(Long authorId, Integer pageIndex) throws Exception {
-        // 특정 사용자의 리뷰 리스트 인출
-        Account author = accountServ.fetchAccountById(authorId);
-
         if(pageIndex == null) {
             pageIndex = 0;
         }
         Pageable pageQuery = PageRequest.of(pageIndex, 10, Sort.Direction.DESC, "review_id");
 
-        return reviewRepository.findAllByAuthor(author.getId(), pageQuery);
+        return reviewRepository.findAllByAuthor(authorId, pageQuery);
     }
 
     @Transactional(readOnly = true)
@@ -121,6 +118,15 @@ public class ReviewService {
         return reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new Exception(
                         msgSrc.getMessage("error.review.notExists", null, Locale.ENGLISH)
+                ));
+    }
+
+    @Transactional(readOnly = true)
+    public Review fetchReviewByPlaceIdAndAuthorId(Long placeId, Long authorId) throws Exception {
+        // 특정 장소에서 특정 회원의 리뷰 조회 요청
+        return reviewRepository.findByPlaceIdAndAuthorId(placeId, authorId)
+                .orElseThrow(() -> new Exception(
+                   msgSrc.getMessage("error.review-notExists", null, Locale.ENGLISH)
                 ));
     }
 
