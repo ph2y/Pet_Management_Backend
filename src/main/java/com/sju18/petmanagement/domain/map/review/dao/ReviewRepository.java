@@ -18,6 +18,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Review> findByAuthorAndId(Account author, Long id);
 
+    Optional<Review> findByPlaceIdAndAuthorId(Long placeId, Long authorId);
+
     @Query(
             value = "SELECT * FROM review AS r WHERE r.place_id=:placeId",
             countQuery = "SELECT COUNT(*) FROM review AS r WHERE r.place_id=:placeId",

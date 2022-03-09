@@ -61,20 +61,24 @@ public class ReviewController {
                 // 개별 리뷰 조회 요청
                 reviewList = new ArrayList<>();
                 reviewList.add(reviewServ.fetchReviewById(reqDto.getId()));
+            } else if(reqDto.getPlaceId() != null && reqDto.getAuthorId() != null) {
+                // 특정 장소에서 특정 회원의 리뷰 조회 요청
+                reviewList = new ArrayList<>();
+                reviewList.add(reviewServ.fetchReviewByPlaceIdAndAuthorId(reqDto.getPlaceId(), reqDto.getAuthorId()));
             } else if (reqDto.getPlaceId() != null) {
-                // 특정 장소의 리뷰 리스트 요청
+                // 특정 장소의 리뷰 리스트 조회 요청
                 final Page<Review> reviewPage = reviewServ.fetchReviewByPlaceId(reqDto.getPlaceId(), reqDto.getPageIndex(), reqDto.getTopReviewId());
                 reviewList = reviewPage.getContent();
                 pageable = reviewPage.getPageable();
                 isLast = reviewPage.isLast();
             } else if (reqDto.getAuthorId() != null) {
-                // 특정 사용자의 리뷰 리스트 요청
+                // 특정 사용자의 리뷰 리스트 조회 요청
                 final Page<Review> reviewPage =  reviewServ.fetchReviewByAuthor(reqDto.getAuthorId(), reqDto.getPageIndex());
                 reviewList = reviewPage.getContent();
                 pageable = reviewPage.getPageable();
                 isLast = reviewPage.isLast();
             } else {
-                // 사용자가 작성한 리뷰 리스트 요청
+                // 사용자가 작성한 리뷰 리스트 조회 요청
                 final Page<Review> reviewPage = reviewServ.fetchMyReview(auth, reqDto.getPageIndex());
                 reviewList = reviewPage.getContent();
                 pageable = reviewPage.getPageable();
