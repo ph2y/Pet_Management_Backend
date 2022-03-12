@@ -253,12 +253,6 @@ public class PostService {
         if (!reqDto.getDisclosure().equals(currentPost.getDisclosure())) {
             currentPost.setDisclosure(reqDto.getDisclosure());
         }
-        if (!reqDto.getGeoTagLat().equals(currentPost.getGeoTagLat())) {
-            currentPost.setGeoTagLat(reqDto.getGeoTagLat());
-        }
-        if (!reqDto.getGeoTagLong().equals(currentPost.getGeoTagLong())) {
-            currentPost.setGeoTagLong(reqDto.getGeoTagLong());
-        }
         currentPost.setEdited(true);
 
         // save
