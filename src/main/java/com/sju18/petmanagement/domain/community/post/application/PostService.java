@@ -10,6 +10,7 @@ import com.sju18.petmanagement.domain.community.post.dto.*;
 import com.sju18.petmanagement.domain.community.follow.application.FollowService;
 import com.sju18.petmanagement.domain.pet.pet.application.PetService;
 import com.sju18.petmanagement.domain.pet.pet.dao.Pet;
+import com.sju18.petmanagement.global.email.EmailService;
 import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import com.sju18.petmanagement.global.position.RangeCalService;
@@ -47,6 +48,7 @@ public class PostService {
     private final FollowService followServ;
     private final FileService fileServ;
     private final NotificationPushService notificationPushService;
+    private final EmailService emailServ;
 
     // CREATE
     @Transactional
@@ -364,5 +366,15 @@ public class PostService {
                 );
         }
         postRepository.save(currentPost);
+    }
+
+    public void reportPost(Long postId) throws Exception {
+        // 기존 게시물 정보 로드
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new Exception(
+                        msgSrc.getMessage("error.post.notExists", null, Locale.ENGLISH)
+                ));
+
+        emailServ.sendPostReportNotifyMessage(post);
     }
 }
