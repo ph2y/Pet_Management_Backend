@@ -224,4 +224,18 @@ public class PostController {
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.postFile.delete.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new DeletePostFileResDto(dtoMetadata));
     }
+
+    @PostMapping("/api/post/report")
+    public ResponseEntity<?> reportPost(@Valid @RequestBody ReportPostReqDto reqDto) {
+        DtoMetadata dtoMetadata;
+        try {
+            postServ.reportPost(reqDto.getId());
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new ReportPostResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.post.report.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new ReportPostResDto(dtoMetadata));
+    }
 }
