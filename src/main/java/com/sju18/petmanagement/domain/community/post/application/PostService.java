@@ -368,6 +368,7 @@ public class PostService {
         postRepository.save(currentPost);
     }
 
+    @Transactional
     public void reportPost(Long postId) throws Exception {
         // 기존 게시물 정보 로드
         Post post = postRepository.findById(postId)
@@ -375,6 +376,6 @@ public class PostService {
                         msgSrc.getMessage("error.post.notExists", null, Locale.ENGLISH)
                 ));
 
-        emailServ.sendPostReportNotifyMessage(post);
+        emailServ.sendContentReportNotifyMessage("post", post.getId(), post.getAuthor().getId(), post.getContents());
     }
 }

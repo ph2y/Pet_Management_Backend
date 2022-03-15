@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.mail.Message;
@@ -50,6 +51,7 @@ public class EmailService {
     }
 
     // 인증 메시지 발송
+    @Async
     public void sendVerificationMessage(String to) throws Exception {
         MimeMessage message = createVerificationMessage(to);
         try{
@@ -91,6 +93,7 @@ public class EmailService {
     }
 
     // 임시비밀번호 메시지 발송
+    @Async
     public void sendTempPasswordNotifyMessage(String to, String tempPassword) throws Exception {
         MimeMessage message = createTempPasswordNotifyMessage(to, tempPassword);
         try{
@@ -102,23 +105,25 @@ public class EmailService {
         }
     }
 
-    // 게시물 신고 알림 제목 및 내용 생성
-    private MimeMessage createPostReportNotifyMessage(Long postId, Long authorId, String postContent) throws Exception{
-        logger.info("신고된 게시물 id : " + postId);
+    // 컨텐츠 신고 알림 제목 및 내용 생성
+    private MimeMessage createContentReportNotifyMessage(String contentType, Long contentId, Long contentAuthorId, String contentBody) throws Exception{
+        logger.info("신고된 컨텐츠 타입 :  " + contentType);
+        logger.info("신고된 id : " + contentId);
 
         MimeMessage  message = emailSender.createMimeMessage();
 
-        message.addRecipients(Message.RecipientType.TO, "ph2ydev@gmail.com"); //보내는 대상
-        message.setSubject("집사의 노트 게시물 신고 알림 - 신고된 게시물 id: " +postId); //제목
+        message.addRecipients(Message.RecipientType.TO, "ph2ydev@gmail.com"); // 보내는 대상
+        message.setSubject("집사의 노트 컨텐츠 신고 알림 - " + contentType + " id: " + contentId); // 제목
 
         String verificationMessage="";
         verificationMessage += "<div style=\"padding-right: 30px; padding-left: 30px; margin: 10px 0 10px;\"><img src=\"https://avatars.githubusercontent.com/u/90550468?s=200&v=4\" width=\"60px\" height=\"60px\" loading=\"lazy\"></div>";
         verificationMessage += "<div style=\"border-bottom: 0.5px solid gray; padding-right: 30px; padding-left: 30px; margin: 10px 30px 10px 30px;\"></div>";
-        verificationMessage += "<h1 style=\"font-size: 30px; padding-right: 30px; padding-left: 30px;\">집사의 노트 게시물 신고 알림</h1>";
-        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 게시물 id: " + postId + "</p>";
-        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 게시물 작성자 id: " + authorId + "</p>";
-        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 게시물 내용</p>";
-        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">" + postContent;
+        verificationMessage += "<h1 style=\"font-size: 30px; padding-right: 30px; padding-left: 30px;\">집사의 노트 컨텐츠 신고 알림</h1>";
+        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 컨텐츠 타입: " + contentType + "</p>";
+        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 컨텐츠 id: " + contentId + "</p>";
+        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 컨텐츠 작성자 id: " + contentAuthorId + "</p>";
+        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">신고된 컨텐츠 내용</p>";
+        verificationMessage += "<p style=\"font-size: 17px; padding-right: 30px; padding-left: 30px;\">" + contentBody;
         verificationMessage += "<div style=\"border-bottom: 0.5px solid gray; padding-right: 30px; padding-left: 30px; margin: 10px 30px 10px 30px;\"></div>";
         verificationMessage += "<p style=\"font-size: 13px; color: gray; padding-right: 30px; padding-left: 30px;\">본 이메일은 발신전용입니다.</p>";
         verificationMessage += "<p style=\"font-size: 13px; color: gray; padding-right: 30px; padding-left: 30px;\">©PH2Y. All Rights Reserved.</p><br/>";
@@ -129,9 +134,10 @@ public class EmailService {
         return message;
     }
 
-    // 게시물 신고 알림 메시지 발송
-    public void sendPostReportNotifyMessage(Post post) throws Exception {
-        MimeMessage message = createPostReportNotifyMessage(post.getId(), post.getAuthor().getId(), post.getContents());
+    // 컨텐츠 신고 알림 메시지 발송
+    @Async
+    public void sendContentReportNotifyMessage(String contentType, Long contentId, Long contentAuthorId, String contentBody) throws Exception {
+        MimeMessage message = createContentReportNotifyMessage(contentType, contentId, contentAuthorId, contentBody);
         try{
             //예외처리
             emailSender.send(message);
