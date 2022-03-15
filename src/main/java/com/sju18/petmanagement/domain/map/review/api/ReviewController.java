@@ -154,4 +154,18 @@ public class ReviewController {
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.review.delete.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new DeleteReviewResDto(dtoMetadata, deletedReviewRating));
     }
+
+    @PostMapping("/api/review/report")
+    public ResponseEntity<?> reportReview(@Valid @RequestBody ReportReviewReqDto reqDto) {
+        DtoMetadata dtoMetadata;
+        try {
+            reviewServ.reportReview(reqDto.getId());
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new ReportReviewResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.review.report.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new ReportReviewResDto(dtoMetadata));
+    }
 }

@@ -11,6 +11,7 @@ import com.sju18.petmanagement.domain.map.review.dto.CreateReviewReqDto;
 import com.sju18.petmanagement.domain.map.review.dto.DeleteReviewReqDto;
 import com.sju18.petmanagement.domain.map.review.dto.UpdateReviewMediaReqDto;
 import com.sju18.petmanagement.domain.map.review.dto.UpdateReviewReqDto;
+import com.sju18.petmanagement.global.email.EmailService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import com.sju18.petmanagement.global.storage.FileMetadata;
 import com.sju18.petmanagement.global.storage.FileService;
@@ -39,6 +40,7 @@ public class ReviewService {
     private final AccountService accountServ;
     private final PlaceService placeServ;
     private final FileService fileServ;
+    private final EmailService emailServ;
 
     // CREATE
     @Transactional
@@ -226,5 +228,16 @@ public class ReviewService {
         );
 
         return deletedReviewRating;
+    }
+
+    @Transactional
+    public void reportReview(Long reviewId) throws Exception {
+        // 기존 리뷰 정보 로드
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new Exception(
+                        msgSrc.getMessage("error.review.notExists", null, Locale.ENGLISH)
+                ));
+
+        emailServ.sendContentReportNotifyMessage("review", review.getId(), review.getAuthor().getId(), review.getContents());
     }
 }

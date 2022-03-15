@@ -3,6 +3,8 @@ package com.sju18.petmanagement.domain.community.comment.api;
 import com.sju18.petmanagement.domain.community.comment.application.CommentService;
 import com.sju18.petmanagement.domain.community.comment.dao.Comment;
 import com.sju18.petmanagement.domain.community.comment.dto.*;
+import com.sju18.petmanagement.domain.community.post.dto.ReportPostReqDto;
+import com.sju18.petmanagement.domain.community.post.dto.ReportPostResDto;
 import com.sju18.petmanagement.global.common.DtoMetadata;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.RequiredArgsConstructor;
@@ -109,5 +111,19 @@ public class CommentController {
         }
         dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.comment.delete.success", null, Locale.ENGLISH));
         return ResponseEntity.ok(new DeleteCommentResDto(dtoMetadata));
+    }
+
+    @PostMapping("/api/comment/report")
+    public ResponseEntity<?> reportComment(@Valid @RequestBody ReportCommentReqDto reqDto) {
+        DtoMetadata dtoMetadata;
+        try {
+            commentServ.reportComment(reqDto.getId());
+        } catch (Exception e) {
+            logger.warn(e.toString());
+            dtoMetadata = new DtoMetadata(e.getMessage(), e.getClass().getName());
+            return ResponseEntity.status(400).body(new ReportCommentResDto(dtoMetadata));
+        }
+        dtoMetadata = new DtoMetadata(msgSrc.getMessage("res.comment.report.success", null, Locale.ENGLISH));
+        return ResponseEntity.ok(new ReportCommentResDto(dtoMetadata));
     }
 }

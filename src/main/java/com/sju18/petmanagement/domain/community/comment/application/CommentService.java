@@ -10,6 +10,7 @@ import com.sju18.petmanagement.domain.community.comment.dto.DeleteCommentReqDto;
 import com.sju18.petmanagement.domain.community.comment.dto.FetchCommentReqDto;
 import com.sju18.petmanagement.domain.community.comment.dto.UpdateCommentReqDto;
 import com.sju18.petmanagement.domain.community.post.application.PostService;
+import com.sju18.petmanagement.global.email.EmailService;
 import com.sju18.petmanagement.global.firebase.NotificationPushService;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class CommentService {
     private final AccountService accountServ;
     private final PostService postService;
     private final NotificationPushService notificationPushService;
+    private final EmailService emailServ;
 
     // CREATE
     @Transactional
@@ -132,6 +134,7 @@ public class CommentService {
     }
 
     // UPDATE
+    @Transactional
     public void updateComment(Authentication auth, UpdateCommentReqDto reqDto) throws Exception {
         // 받은 사용자 정보와 댓글/댓답글 id로 댓글/댓답글 정보 수정
         Account author = accountServ.fetchCurrentAccount(auth);
@@ -150,6 +153,7 @@ public class CommentService {
     }
 
     // DELETE
+    @Transactional
     public void deleteComment(Authentication auth, DeleteCommentReqDto reqDto) throws Exception {
         // 받은 사용자 정보와 댓글/댓답글 id로 댓글/댓답글 정보 삭제
         Account author = accountServ.fetchCurrentAccount(auth);
@@ -166,5 +170,16 @@ public class CommentService {
         }
 
         commentRepository.delete(comment);
+    }
+
+    @Transactional
+    public void reportComment(Long commentId) throws Exception {
+        // 기존 코멘트 정보 로드
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new Exception(
+                        msgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
+                ));
+
+        emailServ.sendContentReportNotifyMessage("comment", comment.getId(), comment.getAuthor().getId(), comment.getContents());
     }
 }
