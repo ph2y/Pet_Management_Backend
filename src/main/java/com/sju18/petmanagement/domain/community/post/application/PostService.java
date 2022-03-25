@@ -151,14 +151,21 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> fetchPostByPet(Long petId, Integer pageIndex) {
+    public Page<Post> fetchPostByPet(Authentication auth, Long petId, Integer pageIndex) {
+        Account author = accountServ.fetchCurrentAccount(auth);
+
         // 태그된 펫으로 게시물 인출 (펫 피드 조회시)
         if (pageIndex == null) {
             pageIndex = 0;
         }
         Pageable pageQuery = PageRequest.of(pageIndex,10, Sort.Direction.DESC, "post_id");
 
-        return postRepository.findAllByTaggedPetId(petId, pageQuery);
+        return postRepository.findAllByTaggedPetId(
+                petId,
+                followServ.fetchFollowing(auth).stream().map(follow -> follow.getFollowing().getId()).collect(Collectors.toList()),
+                author.getId(),
+                pageQuery
+        );
     }
 
     @Transactional(readOnly = true)
