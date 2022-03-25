@@ -21,11 +21,15 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Optional<Post> findByAuthorAndId(Account author, Long id);
 
     @Query(
-            value = "SELECT * FROM post AS p WHERE p.pet_id=:petId",
-            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.pet_id=:petId",
+            value = "SELECT * FROM post AS p WHERE p.pet_id=:petId AND (p.disclosure=\"PUBLIC\" OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me)",
+            countQuery = "SELECT COUNT(*) FROM post AS p WHERE p.pet_id=:petId AND (p.disclosure=\"PUBLIC\" OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me)",
             nativeQuery = true
     )
-    Page<Post> findAllByTaggedPetId(@Param("petId") Long taggedPetId, Pageable pageable);
+    Page<Post> findAllByTaggedPetId(
+            @Param("petId") Long taggedPetId,
+            @Param("friends") Collection<Long> friendAccountIdList,
+            @Param("me") Long myAccountId,
+            Pageable pageable);
 
     @Query(
             value = "SELECT * FROM post AS p WHERE ((:latMin <= p.geo_tag_lat AND p.geo_tag_lat <= :latMax) AND (:longMin <= p.geo_tag_long AND p.geo_tag_long <= :longMax) AND p.disclosure=\"PUBLIC\") OR (p.account_id IN :friends AND p.disclosure!=\"PRIVATE\") OR p.account_id=:me",

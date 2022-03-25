@@ -64,7 +64,7 @@ public class PostController {
                 postList.add(postServ.fetchPostById(reqDto.getId()));
             } else if (reqDto.getPetId() != null) {
                 // 펫 피드 조회 요청
-                final Page<Post> postPage = postServ.fetchPostByPet(reqDto.getPetId(), reqDto.getPageIndex());
+                final Page<Post> postPage = postServ.fetchPostByPet(auth, reqDto.getPetId(), reqDto.getPageIndex());
                 postList = postPage.getContent();
                 pageable = postPage.getPageable();
                 isLast = postPage.isLast();
