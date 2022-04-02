@@ -20,7 +20,7 @@ public class FetchPlaceReqDto {
     @DecimalMax(value = "180.0", message = "valid.position.longitude.max")
     @DecimalMin(value = "-180.0", message = "valid.position.longitude.min")
     private BigDecimal currentLong;
-    @DecimalMax(value = "500000.0", message = "valid.place.range.max")
+    @DecimalMax(value = "50000.0", message = "valid.place.range.max")
     @DecimalMin(value = "0.0", message = "valid.place.range.min")
     private BigDecimal range;
 }
