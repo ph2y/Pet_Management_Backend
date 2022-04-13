@@ -6,6 +6,7 @@ import com.sju18.petmanagement.domain.community.block.dao.Block;
 import com.sju18.petmanagement.domain.community.block.dao.BlockRepository;
 import com.sju18.petmanagement.domain.community.block.dto.CreateBlockReqDto;
 import com.sju18.petmanagement.domain.community.block.dto.DeleteBlockReqDto;
+import com.sju18.petmanagement.domain.community.follow.dao.FollowRepository;
 import com.sju18.petmanagement.global.message.MessageConfig;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -20,8 +21,9 @@ import java.util.Locale;
 @Service
 @AllArgsConstructor
 public class BlockService {
-    private final MessageSource accountMsgSrc = MessageConfig.getAccountMessageSource();
+    private final MessageSource communityMsgSrc = MessageConfig.getCommunityMessageSource();
     private final BlockRepository blockRepository;
+    private final FollowRepository followRepository;
     private final AccountService accountServ;
 
     @Transactional
@@ -29,11 +31,23 @@ public class BlockService {
         Account blocker = accountServ.fetchCurrentAccount(auth);
         Account blocked = accountServ.fetchAccountById(reqDto.getId());
 
-        if(blocked.equals(blocker)) {
+        // 이미 존재하는 경우 예외처리
+        if(blockRepository.existsByBlockerIdAndBlockedId(blocker.getId(), blocked.getId())) {
             throw new IllegalArgumentException(
-                    accountMsgSrc.getMessage("error.block.selfBlock", null, Locale.ENGLISH)
+                    communityMsgSrc.getMessage("error.block.exists", null, Locale.ENGLISH)
             );
         }
+
+        // 본인을 Block 할 경우 예외처리
+        if(blocked.equals(blocker)) {
+            throw new IllegalArgumentException(
+                    communityMsgSrc.getMessage("error.block.selfBlock", null, Locale.ENGLISH)
+            );
+        }
+
+        // 기존에 Follow Relationship 이 있을 경우 relationship 삭제
+        followRepository.findByFollowerIdAndFollowingId(blocker.getId(), blocked.getId()).ifPresent(followRepository::delete);
+        followRepository.findByFollowerIdAndFollowingId(blocked.getId(), blocker.getId()).ifPresent(followRepository::delete);
 
         // Block Relationship 생성
         Block block = Block.builder()
@@ -58,7 +72,7 @@ public class BlockService {
 
         Block block = blockRepository.findByBlockerIdAndBlockedId(blocker.getId(), blocked.getId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        accountMsgSrc.getMessage("error.notExist", null, Locale.ENGLISH)
+                        communityMsgSrc.getMessage("error.block.notExists", null, Locale.ENGLISH)
                 ));
 
         blockRepository.delete(block);

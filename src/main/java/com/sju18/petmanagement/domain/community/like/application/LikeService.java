@@ -82,7 +82,7 @@ public class LikeService {
     private void checkAlreadyLikedPost(Long postId, Account likedAccount) throws Exception {
         if (likeRepository.existsByLikedPostIdAndLikedAccount(postId, likedAccount)) {
             throw new DtoValidityException(
-                    msgSrc.getMessage("error.dup.like",null, Locale.ENGLISH)
+                    msgSrc.getMessage("error.like.exists",null, Locale.ENGLISH)
             );
         }
     }
@@ -90,7 +90,7 @@ public class LikeService {
     private void checkAlreadyLikedComment(Long commentId, Account likedAccount) throws Exception {
         if (likeRepository.existsByLikedCommentIdAndLikedAccount(commentId, likedAccount)) {
             throw new DtoValidityException(
-                    msgSrc.getMessage("error.dup.like",null, Locale.ENGLISH)
+                    msgSrc.getMessage("error.like.exists",null, Locale.ENGLISH)
             );
         }
     }
