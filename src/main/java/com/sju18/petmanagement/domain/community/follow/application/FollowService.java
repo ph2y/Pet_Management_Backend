@@ -2,6 +2,7 @@ package com.sju18.petmanagement.domain.community.follow.application;
 
 import com.sju18.petmanagement.domain.account.application.AccountService;
 import com.sju18.petmanagement.domain.account.dao.Account;
+import com.sju18.petmanagement.domain.community.block.dao.BlockRepository;
 import com.sju18.petmanagement.domain.community.follow.dao.Follow;
 import com.sju18.petmanagement.domain.community.follow.dao.FollowRepository;
 import com.sju18.petmanagement.domain.community.follow.dto.CreateFollowReqDto;
@@ -22,9 +23,9 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class FollowService {
-    private final MessageSource accountMsgSrc = MessageConfig.getAccountMessageSource();
     private final MessageSource communityMsgSrc = MessageConfig.getCommunityMessageSource();
     private final FollowRepository followRepository;
+    private final BlockRepository blockRepository;
     private final AccountService accountServ;
     private final NotificationPushService notificationPushService;
 
@@ -33,9 +34,30 @@ public class FollowService {
         Account following = accountServ.fetchCurrentAccount(auth);
         Account follower = accountServ.fetchAccountById(reqDto.getId());
 
+        // 이미 존재하는 경우 예외처리
+        if(followRepository.existsByFollowerIdAndFollowingId(follower.getId(), following.getId())) {
+            throw new IllegalArgumentException(
+                    communityMsgSrc.getMessage("error.follow.exists", null, Locale.ENGLISH)
+            );
+        }
+
+        // 본인을 Follow 할 경우 예외처리
         if(follower.equals(following)) {
             throw new IllegalArgumentException(
-                    accountMsgSrc.getMessage("error.follow.selfFollow", null, Locale.ENGLISH)
+                    communityMsgSrc.getMessage("error.follow.selfFollow", null, Locale.ENGLISH)
+            );
+        }
+
+        // Follow 하려는 대상이 자신을 Block 한 상태인 경우 예외처리
+        if(blockRepository.findByBlockerIdAndBlockedId(follower.getId(), following.getId()).isPresent()) {
+            throw new IllegalArgumentException(
+                    communityMsgSrc.getMessage("error.follow.blockedByFollower", null, Locale.ENGLISH)
+            );
+        }
+        // 본인이 Follow 하려는 대상을 Block 한 상태인 경우 예외처리
+        else if(blockRepository.findByBlockerIdAndBlockedId(following.getId(), follower.getId()).isPresent()) {
+            throw new IllegalArgumentException(
+                    communityMsgSrc.getMessage("error.follow.selfBlockedFollower", null, Locale.ENGLISH)
             );
         }
 
@@ -84,7 +106,7 @@ public class FollowService {
 
         Follow follow = followRepository.findByFollowerIdAndFollowingId(follower.getId(), following.getId())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        accountMsgSrc.getMessage("error.notExist", null, Locale.ENGLISH)
+                        communityMsgSrc.getMessage("error.follow.notExists", null, Locale.ENGLISH)
                 ));
 
         followRepository.delete(follow);

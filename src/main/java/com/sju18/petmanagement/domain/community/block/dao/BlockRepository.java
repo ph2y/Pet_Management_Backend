@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface BlockRepository extends JpaRepository<Block, Long> {
     List<Block> findAllByBlockerId(Long blockerId);
     Optional<Block> findByBlockerIdAndBlockedId(Long blockerId, Long blockedId);
+    boolean existsByBlockerIdAndBlockedId(Long blockerId, Long blockedId);
 }
