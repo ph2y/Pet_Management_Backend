@@ -50,7 +50,7 @@ public class CommentController {
 
     // READ
     @PostMapping("/api/comment/fetch")
-    public ResponseEntity<?> fetchComment(@Valid @RequestBody FetchCommentReqDto reqDto) {
+    public ResponseEntity<?> fetchComment(Authentication auth, @Valid @RequestBody FetchCommentReqDto reqDto) {
         DtoMetadata dtoMetadata;
         final List<Comment> commentList;
         Pageable pageable = null;
@@ -63,13 +63,13 @@ public class CommentController {
                 commentList.add(commentServ.fetchCommentById(reqDto.getId()));
             } else if (reqDto.getParentCommentId() != null) {
                 // 댓답글 목록 조회 요청
-                final Page<Comment> commentPage = commentServ.fetchCommentByParentCommentId(reqDto);
+                final Page<Comment> commentPage = commentServ.fetchCommentByParentCommentId(auth, reqDto);
                 commentList = commentPage.getContent();
                 pageable = commentPage.getPageable();
                 isLast = commentPage.isLast();
             } else {
                 // 댓글 목록 조회 요청
-                final Page<Comment> commentPage = commentServ.fetchCommentByPostId(reqDto);
+                final Page<Comment> commentPage = commentServ.fetchCommentByPostId(auth, reqDto);
                 commentList = commentPage.getContent();
                 pageable = commentPage.getPageable();
                 isLast = commentPage.isLast();

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -63,6 +64,19 @@ public class BlockService {
         Account blocker = accountServ.fetchCurrentAccount(auth);
 
         return new ArrayList<>(blockRepository.findAllByBlockerId(blocker.getId()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> fetchBlocked(Account account) {
+        List<Long> blocked = blockRepository.findAllByBlockerId(account.getId())
+                .stream().map(block -> block.getBlocked().getId())
+                .collect(Collectors.toList());
+
+        // SQL 에서 NOT IN 절에 사용할 것이기 때문에, 빈 배열로 넘기지 않고 0L 을 남아 반환한다.
+        // 빈 배열로 넘기면 SQL 에서 NOT IN (NULL) 로 해석하여 0개의 row 를 반환하게 된다.
+        if(blocked.isEmpty()) blocked.add(0L);
+
+        return blocked;
     }
 
     @Transactional

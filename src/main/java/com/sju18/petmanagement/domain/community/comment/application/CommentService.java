@@ -2,6 +2,7 @@ package com.sju18.petmanagement.domain.community.comment.application;
 
 import com.sju18.petmanagement.domain.account.application.AccountService;
 import com.sju18.petmanagement.domain.account.dao.Account;
+import com.sju18.petmanagement.domain.community.block.application.BlockService;
 import com.sju18.petmanagement.domain.community.comment.dao.Comment;
 import com.sju18.petmanagement.domain.community.comment.dao.CommentRepository;
 import com.sju18.petmanagement.domain.community.post.dao.Post;
@@ -32,7 +33,8 @@ public class CommentService {
     private final MessageSource msgSrc = MessageConfig.getCommunityMessageSource();
     private final CommentRepository commentRepository;
     private final AccountService accountServ;
-    private final PostService postService;
+    private final PostService postServ;
+    private final BlockService blockServ;
     private final NotificationPushService notificationPushService;
     private final EmailService emailServ;
 
@@ -45,7 +47,7 @@ public class CommentService {
         if (reqDto.getParentCommentId() != null) {
             repliedComment = this.fetchCommentById(reqDto.getParentCommentId());
         } else {
-            commentedPost = postService.fetchPostById(reqDto.getPostId());
+            commentedPost = postServ.fetchPostById(reqDto.getPostId());
         }
 
         // 받은 사용자 정보와 새 입력 정보로 새 댓글 정보 생성
@@ -87,7 +89,8 @@ public class CommentService {
 
     // READ
     @Transactional(readOnly = true)
-    public Page<Comment> fetchCommentByPostId(FetchCommentReqDto reqDto) {
+    public Page<Comment> fetchCommentByPostId(Authentication auth, FetchCommentReqDto reqDto) {
+        Account author = accountServ.fetchCurrentAccount(auth);
         // 기본 조건에 따른 최신 댓글 인출 (게시물 댓글화면 조회시)
         // 조건: 가장 최신 댓글 50개 조회
         // 추가조건: 만약 fromId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 댓글만 검색
@@ -98,17 +101,19 @@ public class CommentService {
 
         if (reqDto.getTopCommentId() != null) {
             return commentRepository
-                    .findAllByPostIdAndTopCommentId(reqDto.getTopCommentId(), reqDto.getPostId(), pageQuery);
+                    .findAllByPostIdAndTopCommentId(reqDto.getTopCommentId(), reqDto.getPostId(), blockServ.fetchBlocked(author), pageQuery);
         } else {
-            return commentRepository.findAllByPostId(reqDto.getPostId(), pageQuery);
+            return commentRepository.findAllByPostId(reqDto.getPostId(), blockServ.fetchBlocked(author), pageQuery);
         }
     }
 
     @Transactional(readOnly = true)
-    public Page<Comment> fetchCommentByParentCommentId(FetchCommentReqDto reqDto) {
+    public Page<Comment> fetchCommentByParentCommentId(Authentication auth, FetchCommentReqDto reqDto) {
+        Account author = accountServ.fetchCurrentAccount(auth);
         // 기본 조건에 따른 최신 댓답글 인출 (댓글 답글화면 조회시)
         // 조건: 가장 최신 댓답글 50개 조회
         // 추가조건: 만약 fromId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 댓답글만 검색
+        // 추가조건: 차단한 사용자의 댓글은 제외
         if (reqDto.getPageIndex() == null) {
             reqDto.setPageIndex(0);
         }
@@ -117,10 +122,10 @@ public class CommentService {
         if (reqDto.getTopCommentId() != null) {
             return commentRepository
                     .findAllByParentCommentIdAndTopCommentId(
-                            reqDto.getTopCommentId(), reqDto.getParentCommentId(), pageQuery
+                            reqDto.getTopCommentId(), reqDto.getParentCommentId(), blockServ.fetchBlocked(author), pageQuery
                     );
         } else {
-            return commentRepository.findAllByParentCommentId(reqDto.getParentCommentId(), pageQuery);
+            return commentRepository.findAllByParentCommentId(reqDto.getParentCommentId(), blockServ.fetchBlocked(author), pageQuery);
         }
     }
 

@@ -3,6 +3,7 @@ package com.sju18.petmanagement.domain.map.review.application;
 import com.google.gson.Gson;
 import com.sju18.petmanagement.domain.account.application.AccountService;
 import com.sju18.petmanagement.domain.account.dao.Account;
+import com.sju18.petmanagement.domain.community.block.application.BlockService;
 import com.sju18.petmanagement.domain.map.review.dao.Review;
 import com.sju18.petmanagement.domain.map.review.dao.ReviewRepository;
 import com.sju18.petmanagement.domain.map.place.application.PlaceService;
@@ -28,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -38,6 +41,7 @@ public class ReviewService {
     private final MessageSource msgSrc = MessageConfig.getMapMessageSource();
     private final ReviewRepository reviewRepository;
     private final AccountService accountServ;
+    private final BlockService blockServ;
     private final PlaceService placeServ;
     private final FileService fileServ;
     private final EmailService emailServ;
@@ -74,20 +78,22 @@ public class ReviewService {
 
     // READ
     @Transactional(readOnly = true)
-    public Page<Review> fetchReviewByPlaceId(Long placeId, Integer pageIndex, Long topReviewId) {
+    public Page<Review> fetchReviewByPlaceId(Authentication auth, Long placeId, Integer pageIndex, Long topReviewId) {
+        Account author = accountServ.fetchCurrentAccount(auth);
         // 특정 장소의 리뷰 리스트 인출
         // 조건: 가장 최신 리뷰 10개 조회
         // 추가조건: 만약 topReviewId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 리뷰만 검색
+        // 추가조건: 차단한 사용자의 리뷰는 제외
         if (pageIndex == null) {
             pageIndex = 0;
         }
         Pageable pageQuery = PageRequest.of(pageIndex, 10, Sort.Direction.DESC, "review_id");
 
         if (topReviewId != null) {
-            return reviewRepository.findAllByPlaceIdAndTopReviewId(topReviewId, placeId, pageQuery);
+            return reviewRepository.findAllByPlaceIdAndTopReviewId(topReviewId, placeId, blockServ.fetchBlocked(author), pageQuery);
         }
         else {
-            return reviewRepository.findAllByPlaceId(placeId, pageQuery);
+            return reviewRepository.findAllByPlaceId(placeId, blockServ.fetchBlocked(author), pageQuery);
         }
     }
 
@@ -134,7 +140,7 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Double fetchAverageRatingByPlaceId(Long placeId) throws Exception {
-        List<Integer> ratingList = reviewRepository.findAllByPlaceId(placeId, null).getContent()
+        List<Integer> ratingList = reviewRepository.findAllByPlaceId(placeId, Collections.singletonList(0L),null).getContent()
                 .stream().map(Review::getRating).collect(Collectors.toList());
         if(ratingList.size() == 0) return 0.0;
         else return ratingList.stream().mapToDouble(rating -> rating).average()
