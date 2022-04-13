@@ -3,6 +3,7 @@ package com.sju18.petmanagement.domain.community.post.application;
 import com.google.gson.Gson;
 import com.sju18.petmanagement.domain.account.application.AccountService;
 import com.sju18.petmanagement.domain.account.dao.Account;
+import com.sju18.petmanagement.domain.community.block.application.BlockService;
 import com.sju18.petmanagement.domain.community.follow.dao.Follow;
 import com.sju18.petmanagement.domain.community.post.dao.Post;
 import com.sju18.petmanagement.domain.community.post.dao.PostRepository;
@@ -46,6 +47,7 @@ public class PostService {
     private final AccountService accountServ;
     private final PetService petServ;
     private final FollowService followServ;
+    private final BlockService blockServ;
     private final FileService fileServ;
     private final NotificationPushService notificationPushService;
     private final EmailService emailServ;
@@ -65,8 +67,8 @@ public class PostService {
                 .edited(false)
                 .serializedHashTags(String.join(",", reqDto.getHashTags()))
                 .disclosure(reqDto.getDisclosure())
-                .geoTagLat(reqDto.getGeoTagLat().doubleValue())
-                .geoTagLong(reqDto.getGeoTagLong().doubleValue())
+                .geoTagLat(reqDto.getGeoTagLat())
+                .geoTagLong(reqDto.getGeoTagLong())
                 .build();
         
         // save
@@ -100,6 +102,7 @@ public class PostService {
         //      mapSearchRadius = n (n > 0): mapSearchRadius 내 모든 공개 포스트 + 본인 포스트 + 친구 포스트
         //      mapSearchRadius = 0 : 본인 포스트 + 친구 포스트
         // 추가조건: 만약 topPostId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
+        // 추가조건: 차단한 사용자의 게시물은 제외
         if (pageIndex == null) {
             pageIndex = 0;
         }
@@ -113,10 +116,10 @@ public class PostService {
 
             if (topPostId != null) {
                 return postRepository
-                        .findAllByRadiusOptionAndTopPostId(latMin, latMax, longMin, longMax, topPostId, followServ.fetchFollower(author), author.getId(), pageQuery);
+                        .findAllByRadiusOptionAndTopPostId(latMin, latMax, longMin, longMax, topPostId, followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
             } else {
                 return postRepository
-                        .findAllByRadiusOption(latMin, latMax, longMin, longMax, followServ.fetchFollower(author), author.getId(), pageQuery);
+                        .findAllByRadiusOption(latMin, latMax, longMin, longMax, followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
             }
         }
         else {
@@ -136,6 +139,7 @@ public class PostService {
         // 기본 조건에 따른 최신 게시물 인출 (커뮤니티 메인화면 조회시)
         // 조건: 가장 최신의 전체 공개 게시물 또는 친구의 게시물 10개 조회
         // 추가조건: 만약 topPostId(최초 로딩 시점)를 설정했다면 해당 시점 이전의 게시물만 검색
+        // 추가조건: 차단한 사용자의 게시물은 제외
         if (pageIndex == null) {
             pageIndex = 0;
         }
@@ -143,10 +147,10 @@ public class PostService {
 
         if (topPostId != null) {
             return postRepository
-                    .findAllByDefaultOptionAndTopPostId(topPostId, followServ.fetchFollower(author), author.getId(), pageQuery);
+                    .findAllByDefaultOptionAndTopPostId(topPostId, followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
         } else {
             return postRepository
-                    .findAllByDefaultOption(followServ.fetchFollower(author), author.getId(), pageQuery);
+                    .findAllByDefaultOption(followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
         }
     }
 
@@ -155,6 +159,7 @@ public class PostService {
         Account author = accountServ.fetchCurrentAccount(auth);
 
         // 태그된 펫으로 게시물 인출 (펫 피드 조회시)
+        // 추가조건: 차단한 사용자의 게시물은 제외
         if (pageIndex == null) {
             pageIndex = 0;
         }
@@ -163,6 +168,7 @@ public class PostService {
         return postRepository.findAllByTaggedPetId(
                 petId,
                 followServ.fetchFollowing(auth).stream().map(follow -> follow.getFollowing().getId()).collect(Collectors.toList()),
+                blockServ.fetchBlocked(author),
                 author.getId(),
                 pageQuery
         );

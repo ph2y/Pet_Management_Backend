@@ -67,7 +67,7 @@ public class ReviewController {
                 reviewList.add(reviewServ.fetchReviewByPlaceIdAndAuthorId(reqDto.getPlaceId(), reqDto.getAuthorId()));
             } else if (reqDto.getPlaceId() != null) {
                 // 특정 장소의 리뷰 리스트 조회 요청
-                final Page<Review> reviewPage = reviewServ.fetchReviewByPlaceId(reqDto.getPlaceId(), reqDto.getPageIndex(), reqDto.getTopReviewId());
+                final Page<Review> reviewPage = reviewServ.fetchReviewByPlaceId(auth, reqDto.getPlaceId(), reqDto.getPageIndex(), reqDto.getTopReviewId());
                 reviewList = reviewPage.getContent();
                 pageable = reviewPage.getPageable();
                 isLast = reviewPage.isLast();
