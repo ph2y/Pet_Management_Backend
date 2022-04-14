@@ -30,7 +30,7 @@ import java.util.Locale;
 @RequiredArgsConstructor
 @Service
 public class CommentService {
-    private final MessageSource msgSrc = MessageConfig.getCommunityMessageSource();
+    private final MessageSource communityMsgSrc = MessageConfig.getCommunityMessageSource();
     private final CommentRepository commentRepository;
     private final AccountService accountServ;
     private final PostService postServ;
@@ -41,7 +41,8 @@ public class CommentService {
     // CREATE
     @Transactional
     public Long createComment(Authentication auth, CreateCommentReqDto reqDto) throws Exception {
-        Account author = accountServ.fetchCurrentAccount(auth);
+        Account currentUser = accountServ.fetchCurrentAccount(auth);
+
         Post commentedPost = null;
         Comment repliedComment = null;
         if (reqDto.getParentCommentId() != null) {
@@ -50,9 +51,17 @@ public class CommentService {
             commentedPost = postServ.fetchPostById(reqDto.getPostId());
         }
 
+        // 차단을 당한 경우: 댓글/댓답글 작성 불가
+        if((commentedPost != null && blockServ.isCurrentUserBlocked(commentedPost.getAuthor().getId(), currentUser.getId()))
+                || (repliedComment != null && blockServ.isCurrentUserBlocked(repliedComment.getAuthor().getId(), currentUser.getId()))) {
+            throw new IllegalArgumentException(
+                    communityMsgSrc.getMessage("error.comment.blocked", null, Locale.ENGLISH)
+            );
+        }
+
         // 받은 사용자 정보와 새 입력 정보로 새 댓글 정보 생성
         Comment comment = Comment.builder()
-                .author(author)
+                .author(currentUser)
                 .post(commentedPost)
                 .postId(commentedPost != null ? commentedPost.getId() : null)
                 .parentComment(repliedComment)
@@ -72,14 +81,14 @@ public class CommentService {
         commentRepository.save(comment);
 
         // 댓글을 단 대상 (포스트 작성 유저 OR 댓글 작성 유저)에게 댓글 알림 보내기, 단 본인이 본인의 포스트에 댓글을 적을 경우 알림 X
-        if(commentedPost != null && !commentedPost.getAuthor().equals(author)) {
-            notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.comment.post.title", null, Locale.KOREA),
-                    msgSrc.getMessage("notification.comment.post.body", new String[]{author.getNickname()}, Locale.KOREA),
+        if(commentedPost != null && !commentedPost.getAuthor().equals(currentUser)) {
+            notificationPushService.sendToSingleDevice(communityMsgSrc.getMessage("notification.comment.post.title", null, Locale.KOREA),
+                    communityMsgSrc.getMessage("notification.comment.post.body", new String[]{currentUser.getNickname()}, Locale.KOREA),
                     commentedPost.getAuthor());
         }
-        else if (repliedComment != null && !repliedComment.getAuthor().equals(author)) {
-            notificationPushService.sendToSingleDevice(msgSrc.getMessage("notification.comment.replied.title", null, Locale.KOREA),
-                    msgSrc.getMessage("notification.comment.replied.body", new String[]{author.getNickname()}, Locale.KOREA),
+        else if (repliedComment != null && !repliedComment.getAuthor().equals(currentUser)) {
+            notificationPushService.sendToSingleDevice(communityMsgSrc.getMessage("notification.comment.replied.title", null, Locale.KOREA),
+                    communityMsgSrc.getMessage("notification.comment.replied.body", new String[]{currentUser.getNickname()}, Locale.KOREA),
                     repliedComment.getAuthor());
         }
         
@@ -134,7 +143,7 @@ public class CommentService {
         // 댓글/댓답글 고유번호로 댓글/댓답글 인출 (댓글/댓답글 단일 불러오기시 사용)
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
+                        communityMsgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
                 ));
     }
 
@@ -145,7 +154,7 @@ public class CommentService {
         Account author = accountServ.fetchCurrentAccount(auth);
         Comment currentComment = commentRepository.findByAuthorAndId(author, reqDto.getId())
                 .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
+                        communityMsgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
                 ));
 
         if(reqDto.getContents() != null && !reqDto.getContents().equals(currentComment.getContents())) {
@@ -164,7 +173,7 @@ public class CommentService {
         Account author = accountServ.fetchCurrentAccount(auth);
         Comment comment = commentRepository.findByAuthorAndId(author, reqDto.getId())
                 .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
+                        communityMsgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
                 ));
 
         // 댓답글인 경우 부모 댓글의 댓답글 카운트 -1
@@ -182,7 +191,7 @@ public class CommentService {
         // 기존 코멘트 정보 로드
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new Exception(
-                        msgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
+                        communityMsgSrc.getMessage("error.comment.notExists", null, Locale.ENGLISH)
                 ));
 
         emailServ.sendContentReportNotifyMessage("comment", comment.getId(), comment.getAuthor().getId(), comment.getContents());
