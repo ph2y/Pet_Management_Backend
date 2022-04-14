@@ -79,6 +79,11 @@ public class BlockService {
         return blocked;
     }
 
+    // Block Relationship 검색용
+    public boolean isCurrentUserBlocked(Long blockerId, Long blockedId) {
+        return blockRepository.existsByBlockerIdAndBlockedId(blockerId, blockedId);
+    }
+
     @Transactional
     public void deleteBlock(Authentication auth, DeleteBlockReqDto reqDto) throws Exception {
         Account blocker = accountServ.fetchCurrentAccount(auth);
