@@ -8,7 +8,9 @@ package com.sju18.petmanagement;
 // 의존성 패키지 import
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication(scanBasePackages = "com.sju18")
 public class PetManagementApplication extends SpringBootServletInitializer {
@@ -16,4 +18,8 @@ public class PetManagementApplication extends SpringBootServletInitializer {
 		SpringApplication.run(PetManagementApplication.class, args);
 	}
 
+	@Bean
+	public TomcatConnectorCustomizer tomcatConnectorCustomizer() {
+		return connector -> connector.setParseBodyMethods("POST,PUT,DELETE");
+	}
 }
