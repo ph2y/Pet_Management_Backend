@@ -147,7 +147,7 @@ public class PostService {
 
         if (topPostId != null) {
             return postRepository
-                    .findAllByDefaultOptionAndTopPostId(topPostId, followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
+                    .finditoryAllByDefaultOptionAndTopPostId(topPostId, followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
         } else {
             return postRepository
                     .findAllByDefaultOption(followServ.fetchFollower(author), blockServ.fetchBlocked(author), author.getId(), pageQuery);
