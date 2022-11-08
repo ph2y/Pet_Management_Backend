@@ -1,4 +1,5 @@
-# Pet-Management Backend API Server
+# Bulter's Note - Management service for your companion
+## Backend API Server
 
 ![landing.png](./images/landing.png)
 
