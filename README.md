@@ -1,13 +1,15 @@
-# Bulter's Note - Management service for your companion
-## Backend API Server
-
 ![landing.png](./images/landing.png)
+<div align="center">
+
+# 집사의 노트 (Bulter's Note)
+
+</div>
 
 ## 목차
 
 - [1. 프로젝트 소개](#1-프로젝트-소개)
 - [2. 프로젝트 주요 기능](#2-프로젝트-주요-기능)
-- [3. 프로젝트 개발물](#3-프로젝트-개발물)
+- [3. 프로젝트 백엔드 개발물](#3-프로젝트-백엔드-개발물)
   * [3-1. 백엔드 이미지 처리 서비스를 통한 이미지 최적화](#3-1-백엔드-이미지-처리-서비스를-통한-이미지-최적화)
   * [3-2. HTTP Range Request를 통한 비디오 스트리밍](#3-2-http-range-request를-통한-비디오-스트리밍)
 
@@ -19,7 +21,7 @@
 
 ![storyboard.png](./images/storyboard.png)
 
-## 3. 프로젝트 개발물
+## 3. 프로젝트 백엔드 개발물
 
 ### 3-1. 백엔드 이미지 처리 서비스를 통한 이미지 최적화
 
